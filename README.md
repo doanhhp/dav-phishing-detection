@@ -45,7 +45,7 @@ done
 
 Once models are trained, use the global evaluator to generate visual comparisons and a leaderboard:
 ```bash
-python -m src.evaluation.evaluate artifacts/ reports/comparison/
+python -m src.evaluation.evaluate experiments/ reports/comparison/
 ```
 
 ---
@@ -58,7 +58,7 @@ PhishingDetection/
 ├── README.md                    # Project documentation
 ├── requirements.txt             # Python dependencies
 │
-├── artifacts/                   # Saved model weights (.pkl, .h5, .pt) and metrics
+├── experiments/                 # Saved model weights (.pkl, .h5, .pt) and metrics, predictions
 ├── config/
 │   └── benchmarks.yaml          # Master configuration file
 ├── data/
@@ -89,7 +89,7 @@ The framework uses a strict **Factory Pattern**. Each model requires three compo
 |---|---|
 | Architecture | `src/models/{model_name}.py` |
 | Feature Processor | `src/features/{processor_type}.py` |
-| Output Directory | Auto-generated at `artifacts/{model_name}/` |
+| Output Directory | Auto-generated at `experiments/{model_name}/` |
 
 Implement custom model logic inside the stub files — the factory pattern handles instantiation, training loops, and metric logging.
 

@@ -21,6 +21,7 @@ experiments/*/weights.*
 experiments/*/predictions.json
 reports/comparison/*.csv
 reports/comparison/*.png
+reports/eda/*.png
 *.log
 
 # OS
