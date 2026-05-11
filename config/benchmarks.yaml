@@ -1,0 +1,65 @@
+# Modular Benchmarking Architecture Configuration
+
+# Global settings
+global:
+  batch_size: 32
+  epochs: 50
+  validation_split: 0.2
+  test_split: 0.1
+  random_seed: 42
+  output_dir: reports/comparison
+
+# Model-specific hyperparameters
+models:
+  hybrid_svm_knn:
+    type: "sklearn"
+    svm_kernel: "rbf"
+    svm_C: 1.0
+    knn_neighbors: 5
+    feature_processor: "manual"
+
+  lstm_url:
+    type: "tensorflow"
+    embedding_dim: 128
+    lstm_units: 64
+    dropout: 0.3
+    feature_processor: "sequential"
+
+  rnn_gru:
+    type: "tensorflow"
+    embedding_dim: 128
+    gru_units: 64
+    dropout: 0.3
+    feature_processor: "rnn_gru"
+
+  webphish_cnn:
+    type: "tensorflow"
+    filters: [32, 64, 128]
+    kernel_size: 3
+    dropout: 0.4
+    feature_processor: "multimodal"
+
+  egso_cnn:
+    type: "tensorflow"
+    filters: [64, 128]
+    kernel_size: 3
+    tfidf_ngram: [1, 2]
+    svd_components: 100
+    feature_processor: "tfidf_svd"
+
+# Feature processing configuration
+features:
+  manual:
+    n_features: 48
+  sequential:
+    max_seq_length: 256
+    vocab_size: 128
+  rnn_gru:
+    max_seq_length: 256
+    vocab_size: 128
+  multimodal:
+    url_max_length: 200
+    html_max_length: 5000
+  tfidf_svd:
+    max_features: 5000
+    svd_components: 100

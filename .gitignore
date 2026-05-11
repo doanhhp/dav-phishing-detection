@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data and outputs
+data/raw/
+data/processed/
+experiments/*/weights.*
+experiments/*/predictions.json
+reports/comparison/*.csv
+reports/comparison/*.png
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,29 @@
+"""Hybrid SVM+KNN phishing detection model."""
+
+from .base import BaseModel
+
+class SVM_KNN(BaseModel):
+    """Hybrid SVM+KNN model for phishing detection using manual features."""
+
+    def __init__(self, config: dict):
+        super().__init__(config)
+        # TODO: Initialize SVM and KNN models
+
+    def fit(self, X, y):
+        """Train the SVM+KNN model."""
+        self.trained = True
+        # TODO: Implement training logic
+
+    def predict(self, X):
+        """Make predictions."""
+        if not self.trained:
+            raise RuntimeError("Model must be trained before prediction")
+        # TODO: Implement prediction logic
+        return None
+
+    def predict_proba(self, X):
+        """Predict class probabilities."""
+        if not self.trained:
+            raise RuntimeError("Model must be trained before prediction")
+        # TODO: Implement probability prediction
+        return None
