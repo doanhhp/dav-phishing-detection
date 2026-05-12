@@ -20,6 +20,7 @@ DIRECTORIES = [
     "data/processed/lstm_url",
     "data/processed/webphish_cnn",
     "data/processed/egso_cnn",
+    "data/processed/rnn_gru",
     "src/features",
     "src/models",
     "src/evaluation",
@@ -28,6 +29,7 @@ DIRECTORIES = [
     "experiments/lstm_url",
     "experiments/webphish_cnn",
     "experiments/egso_cnn",
+    "experiments/rnn_gru",
     "reports/comparison",
     "reports/individual",
     "notebooks",
@@ -45,68 +47,70 @@ INIT_FILES = {
 }
 
 STUB_FILES = {
-    "src/features/factory.py": '''"""Feature processor factory for modular feature engineering."""
+    "src/features/factory.py": """\"\"\"Feature processor factory for modular feature engineering.\"\"\"
 
 class FeatureFactory:
-    """Factory for instantiating feature processors based on model type."""
+    \"\"\"Factory for instantiating feature processors based on model type.\"\"\"
 
     @staticmethod
     def get_processor(processor_name: str, config: dict):
-        """
+        \"\"\"
         Get a feature processor instance.
 
         Args:
-            processor_name: Type of processor ('manual', 'sequential', 'multimodal', 'tfidf_svd')
+            processor_name: Type of processor ('manual', 'sequential', 'multimodal', 'tfidf_svd', 'rnn_gru')
             config: Configuration dictionary
 
         Returns:
             Feature processor instance
-        """
+        \"\"\"
         from .manual import ManualFeatureProcessor
         from .sequential import SequentialTokenProcessor
         from .multimodal import MultimodalProcessor
         from .tfidf_svd import TfidfSvdProcessor
+        from .rnn_gru import RnnGruProcessor
 
         processors = {
             "manual": ManualFeatureProcessor,
             "sequential": SequentialTokenProcessor,
             "multimodal": MultimodalProcessor,
             "tfidf_svd": TfidfSvdProcessor,
+            "rnn_gru": RnnGruProcessor,
         }
 
         if processor_name not in processors:
             raise ValueError(f"Unknown processor: {processor_name}. Available: {list(processors.keys())}")
 
         return processors[processor_name](config)
-''',
+""",
 
-    "src/features/manual.py": '''"""Manual feature processor for SVM+KNN models."""
+    "src/features/manual.py": """\"\"\"Manual feature processor for SVM+KNN models.\"\"\"
 
 class ManualFeatureProcessor:
-    """Processes manual features for hybrid SVM+KNN model."""
+    \"\"\"Processes manual features for hybrid SVM+KNN model.\"\"\"
 
     def __init__(self, config: dict):
         self.config = config
         self.fitted = False
 
     def fit_transform(self, X, y=None):
-        """Fit and transform features."""
+        \"\"\"Fit and transform features.\"\"\"
         self.fitted = True
         # TODO: Implement manual feature extraction
         return X
 
     def transform(self, X):
-        """Transform features."""
+        \"\"\"Transform features.\"\"\"
         if not self.fitted:
             raise RuntimeError("Processor must be fitted before transform")
         # TODO: Implement manual feature transformation
         return X
-''',
+""",
 
-    "src/features/sequential.py": '''"""Sequential token processor for LSTM models."""
+    "src/features/sequential.py": """\"\"\"Sequential token processor for LSTM models.\"\"\"
 
 class SequentialTokenProcessor:
-    """Processes character sequences for LSTM URL-Only model."""
+    \"\"\"Processes character sequences for LSTM URL-Only model.\"\"\"
 
     def __init__(self, config: dict):
         self.config = config
@@ -114,46 +118,46 @@ class SequentialTokenProcessor:
         self.tokenizer = None
 
     def fit_transform(self, X, y=None):
-        """Fit tokenizer and transform sequences."""
+        \"\"\"Fit tokenizer and transform sequences.\"\"\"
         self.fitted = True
         # TODO: Implement sequence tokenization and padding
         return X
 
     def transform(self, X):
-        """Transform sequences."""
+        \"\"\"Transform sequences.\"\"\"
         if not self.fitted:
             raise RuntimeError("Processor must be fitted before transform")
         # TODO: Implement sequence transformation
         return X
-''',
+""",
 
-    "src/features/multimodal.py": '''"""Multimodal feature processor for WebPhish CNN models."""
+    "src/features/multimodal.py": """\"\"\"Multimodal feature processor for WebPhish CNN models.\"\"\"
 
 class MultimodalProcessor:
-    """Processes URL and HTML features for WebPhish CNN model."""
+    \"\"\"Processes URL and HTML features for WebPhish CNN model.\"\"\"
 
     def __init__(self, config: dict):
         self.config = config
         self.fitted = False
 
     def fit_transform(self, X, y=None):
-        """Fit and transform multimodal features."""
+        \"\"\"Fit and transform multimodal features.\"\"\"
         self.fitted = True
         # TODO: Implement multimodal feature extraction (URL + HTML)
         return X
 
     def transform(self, X):
-        """Transform multimodal features."""
+        \"\"\"Transform multimodal features.\"\"\"
         if not self.fitted:
             raise RuntimeError("Processor must be fitted before transform")
         # TODO: Implement multimodal feature transformation
         return X
-''',
+""",
 
-    "src/features/tfidf_svd.py": '''"""TF-IDF + SVD feature processor for EGSO-CNN models."""
+    "src/features/tfidf_svd.py": """\"\"\"TF-IDF + SVD feature processor for EGSO-CNN models.\"\"\"
 
 class TfidfSvdProcessor:
-    """Processes features using TF-IDF and SVD dimensionality reduction."""
+    \"\"\"Processes features using TF-IDF and SVD dimensionality reduction.\"\"\"
 
     def __init__(self, config: dict):
         self.config = config
@@ -162,25 +166,49 @@ class TfidfSvdProcessor:
         self.svd = None
 
     def fit_transform(self, X, y=None):
-        """Fit TF-IDF and SVD, then transform features."""
+        \"\"\"Fit TF-IDF and SVD, then transform features.\"\"\"
         self.fitted = True
         # TODO: Implement TF-IDF and SVD fitting
         return X
 
     def transform(self, X):
-        """Transform features using fitted TF-IDF and SVD."""
+        \"\"\"Transform features using fitted TF-IDF and SVD.\"\"\"
         if not self.fitted:
             raise RuntimeError("Processor must be fitted before transform")
         # TODO: Implement TF-IDF and SVD transformation
         return X
-''',
+""",
 
-    "src/models/base.py": '''"""Base model class for all benchmarking models."""
+    "src/features/rnn_gru.py": """\"\"\"Sequential token processor for RNN/GRU models.\"\"\"
+
+class RnnGruProcessor:
+    \"\"\"Processes character sequences for RNN GRU model.\"\"\"
+
+    def __init__(self, config: dict):
+        self.config = config
+        self.fitted = False
+        self.tokenizer = None
+
+    def fit_transform(self, X, y=None):
+        \"\"\"Fit tokenizer and transform sequences.\"\"\"
+        self.fitted = True
+        # TODO: Implement sequence tokenization and padding
+        return X
+
+    def transform(self, X):
+        \"\"\"Transform sequences.\"\"\"
+        if not self.fitted:
+            raise RuntimeError("Processor must be fitted before transform")
+        # TODO: Implement sequence transformation
+        return X
+""",
+
+    "src/models/base.py": """\"\"\"Base model class for all benchmarking models.\"\"\"
 
 from abc import ABC, abstractmethod
 
 class BaseModel(ABC):
-    """Abstract base class for all phishing detection models."""
+    \"\"\"Abstract base class for all phishing detection models.\"\"\"
 
     def __init__(self, config: dict):
         self.config = config
@@ -188,188 +216,221 @@ class BaseModel(ABC):
 
     @abstractmethod
     def fit(self, X, y):
-        """Train the model."""
+        \"\"\"Train the model.\"\"\"
         pass
 
     @abstractmethod
     def predict(self, X):
-        """Make predictions."""
+        \"\"\"Make predictions.\"\"\"
         pass
 
     @abstractmethod
     def predict_proba(self, X):
-        """Predict class probabilities."""
+        \"\"\"Predict class probabilities.\"\"\"
         pass
 
     def save(self, path: str):
-        """Save the model."""
+        \"\"\"Save the model.\"\"\"
         raise NotImplementedError("Model saving must be implemented in subclass")
 
     def load(self, path: str):
-        """Load a saved model."""
+        \"\"\"Load a saved model.\"\"\"
         raise NotImplementedError("Model loading must be implemented in subclass")
-''',
+""",
 
-    "src/models/model_factory.py": '''"""Model factory for instantiating different phishing detection models."""
+    "src/models/model_factory.py": """\"\"\"Model factory for instantiating different phishing detection models.\"\"\"
 
 class ModelFactory:
-    """Factory for creating model instances."""
+    \"\"\"Factory for creating model instances.\"\"\"
 
     @staticmethod
     def create_model(model_name: str, config: dict):
-        """
+        \"\"\"
         Create a model instance.
 
         Args:
-            model_name: Name of model ('hybrid_svm_knn', 'lstm_url', 'webphish_cnn', 'egso_cnn')
+            model_name: Name of model ('hybrid_svm_knn', 'lstm_url', 'webphish_cnn', 'egso_cnn', 'rnn_gru')
             config: Configuration dictionary
 
         Returns:
             Model instance
-        """
+        \"\"\"
         from .hybrid_svm_knn import SVM_KNN
         from .lstm_url import LSTM_URL
         from .webphish_cnn import WebPhish_CNN
         from .egso_cnn import EGSO_CNN
+        from .rnn_gru import RNN_GRU
 
         models = {
             "hybrid_svm_knn": SVM_KNN,
             "lstm_url": LSTM_URL,
             "webphish_cnn": WebPhish_CNN,
             "egso_cnn": EGSO_CNN,
+            "rnn_gru": RNN_GRU,
         }
 
         if model_name not in models:
             raise ValueError(f"Unknown model: {model_name}. Available: {list(models.keys())}")
 
         return models[model_name](config)
-''',
+""",
 
-    "src/models/hybrid_svm_knn.py": '''"""Hybrid SVM+KNN phishing detection model."""
+    "src/models/hybrid_svm_knn.py": """\"\"\"Hybrid SVM+KNN phishing detection model.\"\"\"
 
 from .base import BaseModel
 
 class SVM_KNN(BaseModel):
-    """Hybrid SVM+KNN model for phishing detection using manual features."""
+    \"\"\"Hybrid SVM+KNN model for phishing detection using manual features.\"\"\"
 
     def __init__(self, config: dict):
         super().__init__(config)
         # TODO: Initialize SVM and KNN models
 
     def fit(self, X, y):
-        """Train the SVM+KNN model."""
+        \"\"\"Train the SVM+KNN model.\"\"\"
         self.trained = True
         # TODO: Implement training logic
 
     def predict(self, X):
-        """Make predictions."""
+        \"\"\"Make predictions.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement prediction logic
         return None
 
     def predict_proba(self, X):
-        """Predict class probabilities."""
+        \"\"\"Predict class probabilities.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement probability prediction
         return None
-''',
+""",
 
-    "src/models/lstm_url.py": '''"""LSTM URL-only phishing detection model."""
+    "src/models/lstm_url.py": """\"\"\"LSTM URL-only phishing detection model.\"\"\"
 
 from .base import BaseModel
 
 class LSTM_URL(BaseModel):
-    """LSTM model for phishing detection using URL sequences only."""
+    \"\"\"LSTM model for phishing detection using URL sequences only.\"\"\"
 
     def __init__(self, config: dict):
         super().__init__(config)
         # TODO: Initialize LSTM model
 
     def fit(self, X, y):
-        """Train the LSTM model."""
+        \"\"\"Train the LSTM model.\"\"\"
         self.trained = True
         # TODO: Implement training logic
 
     def predict(self, X):
-        """Make predictions."""
+        \"\"\"Make predictions.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement prediction logic
         return None
 
     def predict_proba(self, X):
-        """Predict class probabilities."""
+        \"\"\"Predict class probabilities.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement probability prediction
         return None
-''',
+""",
 
-    "src/models/webphish_cnn.py": '''"""WebPhish CNN phishing detection model."""
+    "src/models/webphish_cnn.py": """\"\"\"WebPhish CNN phishing detection model.\"\"\"
 
 from .base import BaseModel
 
 class WebPhish_CNN(BaseModel):
-    """Multi-modal CNN model for phishing detection using URL and HTML."""
+    \"\"\"Multi-modal CNN model for phishing detection using URL and HTML.\"\"\"
 
     def __init__(self, config: dict):
         super().__init__(config)
         # TODO: Initialize CNN model
 
     def fit(self, X, y):
-        """Train the CNN model."""
+        \"\"\"Train the CNN model.\"\"\"
         self.trained = True
         # TODO: Implement training logic
 
     def predict(self, X):
-        """Make predictions."""
+        \"\"\"Make predictions.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement prediction logic
         return None
 
     def predict_proba(self, X):
-        """Predict class probabilities."""
+        \"\"\"Predict class probabilities.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement probability prediction
         return None
-''',
+""",
 
-    "src/models/egso_cnn.py": '''"""EGSO-CNN phishing detection model (2025)."""
+    "src/models/egso_cnn.py": """\"\"\"EGSO-CNN phishing detection model (2025).\"\"\"
 
 from .base import BaseModel
 
 class EGSO_CNN(BaseModel):
-    """Optimized CNN model with TF-IDF and feature reduction."""
+    \"\"\"Optimized CNN model with TF-IDF and feature reduction.\"\"\"
 
     def __init__(self, config: dict):
         super().__init__(config)
         # TODO: Initialize EGSO-CNN model
 
     def fit(self, X, y):
-        """Train the EGSO-CNN model."""
+        \"\"\"Train the EGSO-CNN model.\"\"\"
         self.trained = True
         # TODO: Implement training logic
 
     def predict(self, X):
-        """Make predictions."""
+        \"\"\"Make predictions.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement prediction logic
         return None
 
     def predict_proba(self, X):
-        """Predict class probabilities."""
+        \"\"\"Predict class probabilities.\"\"\"
         if not self.trained:
             raise RuntimeError("Model must be trained before prediction")
         # TODO: Implement probability prediction
         return None
-''',
+""",
 
-    "src/evaluation/metrics.py": '''"""Metrics calculation for model evaluation."""
+    "src/models/rnn_gru.py": """\"\"\"RNN GRU phishing detection model.\"\"\"
+
+from .base import BaseModel
+
+class RNN_GRU(BaseModel):
+    \"\"\"RNN GRU model for phishing detection.\"\"\"
+
+    def __init__(self, config: dict):
+        super().__init__(config)
+        # TODO: Initialize RNN GRU model
+
+    def fit(self, X, y):
+        \"\"\"Train the RNN GRU model.\"\"\"
+        self.trained = True
+        # TODO: Implement training logic
+
+    def predict(self, X):
+        \"\"\"Make predictions.\"\"\"
+        if not self.trained:
+            raise RuntimeError("Model must be trained before prediction")
+        # TODO: Implement prediction logic
+        return None
+
+    def predict_proba(self, X):
+        \"\"\"Predict class probabilities.\"\"\"
+        if not self.trained:
+            raise RuntimeError("Model must be trained before prediction")
+        # TODO: Implement probability prediction
+        return None
+""",
+
+    "src/evaluation/metrics.py": """\"\"\"Metrics calculation for model evaluation.\"\"\"
 
 import numpy as np
 from sklearn.metrics import (
@@ -378,11 +439,11 @@ from sklearn.metrics import (
 )
 
 class Metrics:
-    """Calculate evaluation metrics."""
+    \"\"\"Calculate evaluation metrics.\"\"\"
 
     @staticmethod
     def calculate_all(y_true, y_pred, y_proba=None):
-        """
+        \"\"\"
         Calculate all evaluation metrics.
 
         Args:
@@ -392,7 +453,7 @@ class Metrics:
 
         Returns:
             Dictionary of metrics
-        """
+        \"\"\"
         metrics = {
             'accuracy': accuracy_score(y_true, y_pred),
             'precision': precision_score(y_true, y_pred, average='weighted'),
@@ -408,9 +469,9 @@ class Metrics:
                 metrics['roc_auc'] = None
 
         return metrics
-''',
+""",
 
-    "src/evaluation/visualizer.py": '''"""Visualization utilities for evaluation results."""
+    "src/evaluation/visualizer.py": """\"\"\"Visualization utilities for evaluation results.\"\"\"
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -418,11 +479,11 @@ import seaborn as sns
 from sklearn.metrics import roc_curve, confusion_matrix
 
 class Visualizer:
-    """Generate visualizations for model evaluation."""
+    \"\"\"Generate visualizations for model evaluation.\"\"\"
 
     @staticmethod
     def plot_roc_curves(results_dict, output_path: str):
-        """Plot ROC curves for all models."""
+        \"\"\"Plot ROC curves for all models.\"\"\"
         plt.figure(figsize=(10, 8))
         for model_name, data in results_dict.items():
             if 'fpr' in data and 'tpr' in data:
@@ -436,7 +497,7 @@ class Visualizer:
 
     @staticmethod
     def plot_confusion_matrices(results_dict, output_path: str):
-        """Plot confusion matrices for all models."""
+        \"\"\"Plot confusion matrices for all models.\"\"\"
         fig, axes = plt.subplots(2, 2, figsize=(12, 10))
         axes = axes.flatten()
 
@@ -451,16 +512,16 @@ class Visualizer:
 
     @staticmethod
     def plot_metrics_heatmap(results_df, output_path: str):
-        """Plot heatmap of all metrics."""
+        \"\"\"Plot heatmap of all metrics.\"\"\"
         plt.figure(figsize=(10, 6))
         sns.heatmap(results_df, annot=True, cmap='YlOrRd')
         plt.title('Model Performance Metrics Comparison')
         plt.tight_layout()
         plt.savefig(output_path)
         plt.close()
-''',
+""",
 
-    "src/evaluation/evaluate.py": '''"""Global evaluator for comparing all models."""
+    "src/evaluation/evaluate.py": """\"\"\"Global evaluator for comparing all models.\"\"\"
 
 import json
 import pandas as pd
@@ -468,7 +529,7 @@ from pathlib import Path
 from .visualizer import Visualizer
 
 class GlobalEvaluator:
-    """Evaluate and compare all model experiments."""
+    \"\"\"Evaluate and compare all model experiments.\"\"\"
 
     def __init__(self, experiments_dir: str, output_dir: str):
         self.experiments_dir = Path(experiments_dir)
@@ -476,7 +537,7 @@ class GlobalEvaluator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def generate_leaderboard(self) -> pd.DataFrame:
-        """Generate performance leaderboard from all experiments."""
+        \"\"\"Generate performance leaderboard from all experiments.\"\"\"
         results = []
 
         for exp_dir in self.experiments_dir.glob("*/"):
@@ -494,44 +555,44 @@ class GlobalEvaluator:
         return df
 
     def generate_all_visualizations(self, results_dict):
-        """Generate all comparison visualizations."""
+        \"\"\"Generate all comparison visualizations.\"\"\"
         Visualizer.plot_roc_curves(results_dict, str(self.output_dir / "roc_curves.png"))
         Visualizer.plot_confusion_matrices(results_dict, str(self.output_dir / "confusion_matrices.png"))
-''',
+""",
 
-    "src/utils/config_loader.py": '''"""Configuration loading utilities."""
+    "src/utils/config_loader.py": """\"\"\"Configuration loading utilities.\"\"\"
 
 import yaml
 from pathlib import Path
 from typing import Dict, Any
 
 class ConfigLoader:
-    """Load and manage YAML configuration files."""
+    \"\"\"Load and manage YAML configuration files.\"\"\"
 
     @staticmethod
     def load_yaml(config_path: str) -> Dict[str, Any]:
-        """Load YAML configuration file."""
+        \"\"\"Load YAML configuration file.\"\"\"
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
 
     @staticmethod
     def get_model_config(config: Dict[str, Any], model_name: str) -> Dict[str, Any]:
-        """Get model-specific configuration."""
+        \"\"\"Get model-specific configuration.\"\"\"
         return config.get('models', {}).get(model_name, {})
 
     @staticmethod
     def get_global_config(config: Dict[str, Any]) -> Dict[str, Any]:
-        """Get global configuration settings."""
+        \"\"\"Get global configuration settings.\"\"\"
         return config.get('global', {})
-''',
+""",
 
-    "src/utils/logger.py": '''"""Logging utility setup."""
+    "src/utils/logger.py": """\"\"\"Logging utility setup.\"\"\"
 
 import logging
 from pathlib import Path
 
 def setup_logger(name: str, log_file: str = None) -> logging.Logger:
-    """Set up a logger with optional file output."""
+    \"\"\"Set up a logger with optional file output.\"\"\"
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
@@ -549,9 +610,9 @@ def setup_logger(name: str, log_file: str = None) -> logging.Logger:
         logger.addHandler(file_handler)
 
     return logger
-''',
+""",
 
-    "src/pipeline.py": '''"""Main training and evaluation pipeline."""
+    "src/pipeline.py": """\"\"\"Main training and evaluation pipeline.\"\"\"
 
 import json
 from pathlib import Path
@@ -564,14 +625,14 @@ from src.evaluation.metrics import Metrics
 logger = setup_logger(__name__)
 
 def run_experiment(model_name: str, config_path: str, dataset_path: str = None):
-    """
+    \"\"\"
     Run a single model experiment.
 
     Args:
         model_name: Name of the model to train
         config_path: Path to configuration YAML file
         dataset_path: Path to dataset (optional, will be added later)
-    """
+    \"\"\"
     logger.info(f"Running experiment for {model_name}")
 
     # Load configuration
@@ -591,61 +652,61 @@ def run_experiment(model_name: str, config_path: str, dataset_path: str = None):
     # 8. Save results
 
     logger.info(f"Experiment for {model_name} completed")
-''',
+""",
 
-    "tests/test_model_factory.py": '''"""Tests for model factory."""
+    "tests/test_model_factory.py": """\"\"\"Tests for model factory.\"\"\"
 
 import pytest
 from src.models.model_factory import ModelFactory
 
 def test_create_hybrid_svm_knn():
-    """Test creation of SVM+KNN model."""
+    \"\"\"Test creation of SVM+KNN model.\"\"\"
     config = {}
     model = ModelFactory.create_model("hybrid_svm_knn", config)
     assert model is not None
 
 def test_create_lstm_url():
-    """Test creation of LSTM model."""
+    \"\"\"Test creation of LSTM model.\"\"\"
     config = {}
     model = ModelFactory.create_model("lstm_url", config)
     assert model is not None
 
 def test_invalid_model():
-    """Test error on invalid model name."""
+    \"\"\"Test error on invalid model name.\"\"\"
     with pytest.raises(ValueError):
         ModelFactory.create_model("invalid_model", {})
-''',
+""",
 
-    "tests/test_feature_processors.py": '''"""Tests for feature processors."""
+    "tests/test_feature_processors.py": """\"\"\"Tests for feature processors.\"\"\"
 
 import pytest
 from src.features.factory import FeatureFactory
 
 def test_create_manual_processor():
-    """Test creation of manual feature processor."""
+    \"\"\"Test creation of manual feature processor.\"\"\"
     config = {}
     processor = FeatureFactory.get_processor("manual", config)
     assert processor is not None
 
 def test_create_sequential_processor():
-    """Test creation of sequential processor."""
+    \"\"\"Test creation of sequential processor.\"\"\"
     config = {}
     processor = FeatureFactory.get_processor("sequential", config)
     assert processor is not None
 
 def test_invalid_processor():
-    """Test error on invalid processor name."""
+    \"\"\"Test error on invalid processor name.\"\"\"
     with pytest.raises(ValueError):
         FeatureFactory.get_processor("invalid_processor", {})
-''',
+""",
 
-    "tests/test_evaluation.py": '''"""Tests for evaluation metrics."""
+    "tests/test_evaluation.py": """\"\"\"Tests for evaluation metrics.\"\"\"
 
 import numpy as np
 from src.evaluation.metrics import Metrics
 
 def test_metrics_calculation():
-    """Test metrics calculation."""
+    \"\"\"Test metrics calculation.\"\"\"
     y_true = np.array([0, 1, 0, 1])
     y_pred = np.array([0, 1, 0, 0])
 
@@ -655,10 +716,10 @@ def test_metrics_calculation():
     assert 'precision' in metrics
     assert 'recall' in metrics
     assert 'f1' in metrics
-''',
+""",
 }
 
-CONFIG_YAML = '''# Modular Benchmarking Architecture Configuration
+CONFIG_YAML = """# Modular Benchmarking Architecture Configuration
 
 # Global settings
 global:
@@ -713,9 +774,9 @@ features:
   tfidf_svd:
     max_features: 5000
     svd_components: 100
-'''
+"""
 
-REQUIREMENTS = '''# Modular Benchmarking Architecture - Requirements
+REQUIREMENTS = """# Modular Benchmarking Architecture - Requirements
 
 # Core ML frameworks
 scikit-learn==1.3.0
@@ -736,123 +797,7 @@ pytest-cov==4.1.0
 
 # Utilities
 tqdm==4.65.0
-'''
-
-README = '''# Modular Phishing Detection Benchmarking System
-
-A professional, production-ready framework for comparing multiple phishing detection approaches using a unified factory pattern and centralized evaluator.
-
-## Overview
-
-This architecture compares four distinct phishing detection methods:
-- **Hybrid SVM+KNN**: Traditional machine learning with manual features
-- **LSTM URL-Only**: Deep learning on raw character sequences
-- **WebPhish CNN**: Multi-modal CNN on URL and HTML data
-- **EGSO-CNN (2025)**: Optimized CNN with TF-IDF and feature reduction
-
-## Quick Start
-
-### 1. Initialize the project
-```bash
-python setup_benchmark.py
-```
-
-### 2. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure models
-Edit `config/benchmarks.yaml` with your dataset path and hyperparameters.
-
-### 4. Run experiments
-```bash
-# Run a single model
-python -m src.pipeline hybrid_svm_knn config/benchmarks.yaml
-
-# Or run all models
-for model in hybrid_svm_knn lstm_url webphish_cnn egso_cnn; do
-    python -m src.pipeline $model config/benchmarks.yaml
-done
-```
-
-### 5. Generate comparison report
-```bash
-python -m src.evaluation.evaluate experiments/ reports/comparison/
-```
-
-## Project Structure
-
-```
-PhishingDetection/
-├── config/
-│   └── benchmarks.yaml           # Master configuration file
-├── data/
-│   ├── raw/                      # Your phishing dataset
-│   └── processed/                # Processed data per model
-├── src/
-│   ├── features/                 # Feature processors
-│   ├── models/                   # Model implementations
-│   ├── evaluation/               # Metrics and visualization
-│   ├── utils/                    # Utilities
-│   └── pipeline.py               # Training/evaluation pipeline
-├── experiments/                  # Model weights and results
-├── reports/                      # Comparison reports and visualizations
-├── tests/                        # Unit tests
-├── setup_benchmark.py            # Initialization script
-└── requirements.txt              # Python dependencies
-```
-
-## Configuration
-
-See `config/benchmarks.yaml` for:
-- Global settings (batch size, epochs, dataset splits)
-- Model-specific hyperparameters (filters, kernels, dropout)
-- Feature processor settings
-
-## Model Integration
-
-Each model has:
-- **stub file**: `src/models/{model_name}.py`
-- **feature processor**: `src/features/{processor_type}.py`
-- **experiment folder**: `experiments/{model_name}/`
-
-Implement your models in the stub files - the factory pattern handles instantiation.
-
-## Evaluation
-
-The global evaluator generates:
-- **leaderboard.csv**: Performance comparison table
-- **roc_curves.png**: Overlaid ROC curves
-- **confusion_matrices.png**: 2x2 grid of confusion matrices
-- **metrics_heatmap.png**: Heatmap of all metrics
-
-## Testing
-
-Run tests:
-```bash
-pytest tests/ -v
-```
-
-## Adding Your Dataset
-
-1. Update `config/benchmarks.yaml` with dataset path
-2. Implement data loading in `src/pipeline.py`
-3. Run experiments
-
-## Framework Features
-
-[+] **Modular**: Factory pattern for models and features
-[+] **Configurable**: Single YAML file for all settings
-[+] **Professional**: Automated comparison and visualizations
-[+] **Extensible**: Easy to add new models or feature processors
-[+] **Testable**: Includes unit test stubs
-[+] **Production-Ready**: Proper Python package structure
-
----
-
-Created with MLOps Architecture principles for professional model benchmarking.
-'''
+"""
 
 def create_directories():
     """Create all required directories."""
@@ -891,7 +836,7 @@ def create_config_files():
 
 def create_gitignore():
     """Create .gitignore file."""
-    gitignore_content = '''# Python
+    gitignore_content = """# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -919,7 +864,7 @@ reports/comparison/*.png
 # OS
 .DS_Store
 Thumbs.db
-'''
+"""
     gitignore_path = BASE_DIR / ".gitignore"
     gitignore_path.write_text(gitignore_content)
     print(f"[+] Created: .gitignore")
