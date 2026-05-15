@@ -35,3 +35,16 @@ class GlobalEvaluator:
         """Generate all comparison visualizations."""
         Visualizer.plot_roc_curves(results_dict, str(self.output_dir / "roc_curves.png"))
         Visualizer.plot_confusion_matrices(results_dict, str(self.output_dir / "confusion_matrices.png"))
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Evaluate and compare experiments")
+    parser.add_argument("experiments_dir", help="Directory containing experiments")
+    parser.add_argument("output_dir", help="Directory to save comparison reports")
+    
+    args = parser.parse_args()
+    
+    evaluator = GlobalEvaluator(args.experiments_dir, args.output_dir)
+    df = evaluator.generate_leaderboard()
+    print("Leaderboard generated:")
+    print(df[['Model', 'accuracy', 'precision', 'recall', 'f1', 'roc_auc']])
