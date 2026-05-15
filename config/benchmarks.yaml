@@ -34,9 +34,12 @@ models:
 
   webphish_cnn:
     type: "tensorflow"
-    filters: [32, 64, 128]
-    kernel_size: 3
-    dropout: 0.4
+    url_vocab_size: 130
+    html_vocab_size: 50000  # Limited from 321k for practical reasons, user can increase
+    embedding_dim: 16
+    filters: 32
+    kernel_size: 8
+    dropout: 0.2
     feature_processor: "multimodal"
 
   egso_cnn:
@@ -58,8 +61,8 @@ features:
     max_seq_length: 256
     vocab_size: 128
   multimodal:
-    url_max_length: 200
-    html_max_length: 5000
+    url_max_length: 180
+    html_max_length: 2000
   tfidf_svd:
     max_features: 5000
     svd_components: 100

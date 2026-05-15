@@ -29,7 +29,11 @@ def test_svm_knn_fit_predict():
     assert probs.shape == (10, 2)
 
 def test_multimodal_processor():
-    config = {"url_max_length": 20, "html_max_length": 50}
+    config = {
+        "url_max_length": 20, 
+        "html_max_length": 50,
+        "html_vocab_size": 100
+    }
     processor = MultimodalProcessor(config)
     data = pd.DataFrame({
         "url": ["http://a.com", "http://b.com"],
@@ -40,19 +44,22 @@ def test_multimodal_processor():
     assert len(features) == 2
     assert features[0].shape == (2, 20)
     assert features[1].shape == (2, 50)
+    assert processor.html_actual_vocab_size > 0
 
 def test_webphish_cnn_fit_predict():
     config = {
         "url_max_length": 20,
         "html_max_length": 50,
-        "vocab_size": 130,
-        "filters": [8, 16],
+        "url_vocab_size": 130,
+        "html_vocab_size": 100,
+        "filters": 32,
+        "kernel_size": 8,
         "batch_size": 2,
         "epochs": 1
     }
     model = WebPhish_CNN(config)
     X_url = np.random.randint(0, 130, (4, 20))
-    X_html = np.random.randint(0, 130, (4, 50))
+    X_html = np.random.randint(0, 100, (4, 50))
     X = [X_url, X_html]
     y = np.array([0, 1, 0, 1])
     
