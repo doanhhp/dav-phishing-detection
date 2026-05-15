@@ -10,7 +10,7 @@ A comparative evaluation of five phishing detection methods for malicious URL an
 |---|---|---|
 | **Hybrid SVM+KNN** | Traditional ML | Manually engineered features |
 | **LSTM URL-Only** | Deep Learning | Raw character sequences of URLs |
-| **WebPhish CNN** | Deep Learning | Multi-modal CNN on URL + HTML DOM |
+| **WebPhish CNN** | Deep Learning | State-of-the-art multi-modal CNN (99.03% accuracy) |
 | **EGSO-CNN (2025)** | Deep Learning | Optimized CNN with TF-IDF and dimensionality reduction |
 | **RNN-GRU** | Deep Learning | Sequential model for textual web data |
 

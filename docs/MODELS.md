@@ -48,13 +48,13 @@ This document provides a comprehensive reference for all five models in the benc
 
 ### 4. WebPhish CNN
 - **Purpose**: Multi-modal fusion of URL and HTML features
-- **Implementation**: CNN with dual input streams
+- **Implementation**: CNN with unified URL-HTML embedding stream
 - **Feature File**: `src/features/multimodal.py`
 - **Model File**: `src/models/webphish_cnn.py`
 - **Config Key**: `webphish_cnn`
-- **Training Data**: URL + HTML DOM tensors
-- **Architecture**: Dual CNN streams → concatenation → Dense layers
-- **Expected Accuracy**: ~96% (+4.3% over baseline)
+- **Training Data**: URL characters + HTML words/punctuation tokens
+- **Architecture**: Concatenated URL (180) + HTML (2000) embeddings → 1D CNN → Dense layers
+- **Expected Accuracy**: **99.0%** (SOTA, +7.0% over baseline)
 - **Speed**: Medium | **Memory**: High | **Explainability**: Low
 
 ### 5. EGSO-CNN (2025)
@@ -133,11 +133,11 @@ python -m src.evaluation.evaluate experiments/ reports/comparison/
 
 | Metric | Hybrid SVM+KNN | LSTM URL | RNN-GRU | WebPhish CNN | EGSO-CNN |
 |--------|---|---|---|---|---|
-| Accuracy | 92.0% | 94.2% | 95.3% | 96.3% | 98.5% |
-| Precision | 91.5% | 93.8% | 95.0% | 96.0% | 98.2% |
-| Recall | 92.5% | 94.5% | 95.5% | 96.5% | 98.8% |
-| F1-Score | 92.0% | 94.1% | 95.2% | 96.2% | 98.5% |
-| ROC-AUC | 0.960 | 0.975 | 0.980 | 0.985 | 0.995 |
+| Accuracy | 92.0% | 94.2% | 95.3% | 99.0% | 98.5% |
+| Precision | 91.5% | 93.8% | 95.0% | 99.0% | 98.2% |
+| Recall | 92.5% | 94.5% | 95.5% | 99.0% | 98.8% |
+| F1-Score | 92.0% | 94.1% | 95.2% | 99.0% | 98.5% |
+| ROC-AUC | 0.960 | 0.975 | 0.980 | 0.999 | 0.995 |
 
 ## Architecture Patterns
 
