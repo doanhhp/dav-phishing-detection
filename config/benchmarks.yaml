@@ -23,13 +23,17 @@ models:
     embedding_dim: 128
     lstm_units: 64
     dropout: 0.3
+    batch_size: 128
     feature_processor: "sequential"
 
   rnn_gru:
     type: "tensorflow"
-    embedding_dim: 128
     gru_units: 64
+    layers: 2
     dropout: 0.3
+    batch_size: 128
+    epochs: 10
+    learning_rate: 0.001
     feature_processor: "rnn_gru"
 
   webphish_cnn:
@@ -44,11 +48,15 @@ models:
 
   egso_cnn:
     type: "tensorflow"
-    filters: [64, 128]
+    filters: [64, 128, 256]
     kernel_size: 3
+    dropout: 0.5
+    batch_size: 128
+    epochs: 100
+    learning_rate: 0.001
     tfidf_ngram: [1, 2]
     svd_components: 100
-    feature_processor: "tfidf_svd"
+    feature_processor: "tfidf_vae"
 
 # Feature processing configuration
 features:
@@ -58,8 +66,8 @@ features:
     max_seq_length: 256
     vocab_size: 128
   rnn_gru:
-    max_seq_length: 256
-    vocab_size: 128
+    max_seq_length: 200
+    vocab_size: 100
   multimodal:
     url_max_length: 180
     html_max_length: 2000

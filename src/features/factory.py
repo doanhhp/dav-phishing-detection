@@ -20,6 +20,7 @@ class FeatureFactory:
         from .rnn_gru import RnnGruProcessor
         from .multimodal import MultimodalProcessor
         from .tfidf_svd import TfidfSvdProcessor
+        from .tfidf_vae import TfidfVaeProcessor
 
         processors = {
             "manual": ManualFeatureProcessor,
@@ -27,6 +28,7 @@ class FeatureFactory:
             "rnn_gru": RnnGruProcessor,
             "multimodal": MultimodalProcessor,
             "tfidf_svd": TfidfSvdProcessor,
+            "tfidf_vae": TfidfVaeProcessor,
         }
 
         if processor_name not in processors:

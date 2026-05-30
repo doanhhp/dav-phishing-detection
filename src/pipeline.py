@@ -107,7 +107,14 @@ def run_experiment(model_name: str, config_path: str, samples: int = None):
     with open(exp_dir / "results.json", "w") as f:
         json.dump(metrics, f, indent=4)
     
-    model.save(str(exp_dir / "model.joblib" if "sklearn" in model_config.get("type", "") else exp_dir / "model.h5"))
+    if "sklearn" in model_config.get("type", ""):
+        save_path = exp_dir / "model.joblib"
+    elif "pytorch" in model_config.get("type", ""):
+        save_path = exp_dir / "model.pth"
+    else:
+        save_path = exp_dir / "model.h5"
+        
+    model.save(str(save_path))
     
     logger.info(f"--- Experiment for {model_name} completed ---")
     return metrics

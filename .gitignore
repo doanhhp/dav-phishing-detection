@@ -15,8 +15,10 @@ ENV/
 *.swo
 
 # Data and outputs
-data/raw/
-data/processed/
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
 experiments/*/weights.*
 experiments/*/predictions.json
 reports/comparison/*.csv
