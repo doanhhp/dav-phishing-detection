@@ -56,6 +56,14 @@ Once models are trained, use the global evaluator to generate visual comparisons
 python -m src.evaluation.evaluate experiments/ reports/comparison/
 ```
 
+**6. Crawl Out-of-Distribution Data**
+
+To test your models on fresh, live websites, use the crawler. It fetches legitimate websites from Tranco and phishing websites from PhishTank or OpenPhish.
+```bash
+python -m src.data.crawler --legit 500 --phish 100 --timeout 5
+```
+*Note: PhishTank limits public requests. To avoid rate limits, [register for a free PhishTank account](https://phishtank.com/register.php) and generate an application key. You can pass it like this: `--phishtank_key YOUR_KEY_HERE`*
+
 ---
 
 ## Project Structure

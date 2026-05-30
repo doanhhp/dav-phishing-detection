@@ -33,6 +33,28 @@ def load_data(url_path: str, html_path: str = None, samples: int = None):
     
     return df_url, y
 
+def run_experiment(model_name: str, config_path: str, samples: int = None, cv: int = None, exp_suffix: str = ""):
+    """
+    Run a single model experiment.
+    """
+    logger.info(f"--- Starting experiment for {model_name}{exp_suffix} ---")
+
+    # 1. Load configuration
+    config = ConfigLoader.load_yaml(config_path)
+    model_config = ConfigLoader.get_model_config(config, model_name)
+    global_config = ConfigLoader.get_global_config(config)
+    
+    # Merge global configs into model config (only if not already set)
+    for key in ["batch_size", "epochs", "random_seed"]:
+        if key not in model_config and key in global_config:
+            model_config[key] = global_config[key]
+
+    # 2. Load dataset
+    url_path = "data/raw/URL.xlsx"
+    html_path = "data/raw/html.xlsx" if model_name in ["webphish_cnn", "egso_cnn"] else None
+    
+    df, y = load_data(url_path, html_path, samples=samples)
+
     # 3. Split data & CV Setup
     X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn"] else df['Data']
     processor_name = model_config.get("feature_processor")
@@ -105,7 +127,7 @@ def load_data(url_path: str, html_path: str = None, samples: int = None):
         logger.info(f"Metrics: {metrics}")
     
     # 8. Save results
-    exp_dir = Path(f"experiments/{model_name}")
+    exp_dir = Path(f"experiments/{model_name}{exp_suffix}")
     exp_dir.mkdir(parents=True, exist_ok=True)
     
     with open(exp_dir / "results.json", "w") as f:
@@ -135,6 +157,7 @@ if __name__ == "__main__":
     parser.add_argument("config", help="Path to config file")
     parser.add_argument("--samples", type=int, default=None, help="Number of samples to use")
     parser.add_argument("--cv", type=int, default=None, help="Number of CV folds")
+    parser.add_argument("--exp_suffix", type=str, default="", help="Suffix for experiment directory")
     
     args = parser.parse_args()
-    run_experiment(args.model, args.config, samples=args.samples, cv=args.cv)
+    run_experiment(args.model, args.config, samples=args.samples, cv=args.cv, exp_suffix=args.exp_suffix)
