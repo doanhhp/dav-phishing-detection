@@ -62,7 +62,7 @@ To test your models on fresh, live websites, use the crawler. It fetches legitim
 ```bash
 python -m src.data.crawler --legit 500 --phish 100 --timeout 5
 ```
-*Note: PhishTank limits public requests. To avoid rate limits, [register for a free PhishTank account](https://phishtank.com/register.php) and generate an application key. You can pass it like this: `--phishtank_key YOUR_KEY_HERE`*
+*Note: PhishTank often limits public requests and occasionally disables new API registrations. If the PhishTank download fails or is rate-limited, the crawler will automatically fall back to [OpenPhish's](https://openphish.com/) free live feed to grab active phishing links—no API key required!*
 
 ---
 
