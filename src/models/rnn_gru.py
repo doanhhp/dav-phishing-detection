@@ -19,12 +19,14 @@ class RNN_GRU(BaseModel):
         self.model = self._build_model()
 
     def _build_model(self):
-        # Input is now a one-hot encoded matrix: (max_seq_length, vocab_size)
-        inputs = layers.Input(shape=(self.max_seq_length, self.vocab_size), name="url_input_matrix")
+        # Input is now integer sequences: (max_seq_length,)
+        inputs = layers.Input(shape=(self.max_seq_length,), name="url_input_seq")
+        
+        # Dense trainable Embedding layer
+        x = layers.Embedding(input_dim=self.vocab_size, output_dim=self.embedding_dim, mask_zero=True)(inputs)
         
         # 2-layer GRU
         num_layers = self.config.get("layers", 2)
-        x = inputs
         for i in range(num_layers):
             return_sequences = (i < num_layers - 1)
             x = layers.Bidirectional(layers.GRU(self.gru_units, return_sequences=return_sequences, name=f"gru_{i}"))(x)

@@ -20,10 +20,38 @@ class TfidfVaeProcessor:
         self.scaler = StandardScaler()
         
     def _extract_text(self, X):
+        from urllib.parse import urlparse
+        from bs4 import BeautifulSoup
+        import traceback
+
         if isinstance(X, pd.DataFrame) and X.shape[1] > 1:
             urls = X.iloc[:, 0].fillna("").astype(str).values
             htmls = X.iloc[:, 1].fillna("").astype(str).values
-            return [f"{u} {h}" for u, h in zip(urls, htmls)]
+            
+            parsed_texts = []
+            for u, h in zip(urls, htmls):
+                # 1. Parse URL components
+                try:
+                    u_to_parse = u if u.startswith("http") else "http://" + u
+                    parsed = urlparse(u_to_parse)
+                    url_features = f"{parsed.scheme} {parsed.netloc} {parsed.path} {parsed.query}".replace(".", " ").replace("/", " ")
+                except Exception:
+                    url_features = u.replace(".", " ").replace("/", " ")
+                
+                # 2. Parse HTML components
+                html_features = ""
+                try:
+                    if h and len(h) > 5:
+                        soup = BeautifulSoup(h, "html.parser")
+                        links = " ".join([a.get_text(separator=' ', strip=True) for a in soup.find_all('a')])
+                        lists = " ".join([li.get_text(separator=' ', strip=True) for li in soup.find_all(['ul', 'ol', 'li'])])
+                        titles = " ".join([t.get_text(separator=' ', strip=True) for t in soup.find_all('title')])
+                        html_features = f"{titles} {links} {lists}"
+                except Exception:
+                    pass
+                
+                parsed_texts.append(f"{url_features} {html_features}")
+            return parsed_texts
         elif isinstance(X, pd.Series):
             return X.fillna("").astype(str).values
         elif isinstance(X, pd.DataFrame):
