@@ -34,14 +34,22 @@ Train and evaluate a single model:
 python -m src.pipeline hybrid_svm_knn config/benchmarks.yaml
 ```
 
-Or run the full benchmark suite across all five models:
+Or run the full benchmark suite across all five models with cross-validation:
 ```bash
 for model in hybrid_svm_knn lstm_url webphish_cnn egso_cnn rnn_gru; do
-    python -m src.pipeline $model config/benchmarks.yaml
+    python -m src.pipeline $model config/benchmarks.yaml --cv 5
 done
 ```
 
-**4. Generate comparison report**
+**4. Hyperparameter Tuning**
+
+You can use the Optuna script to find the optimal configuration for a model using Bayesian optimization:
+```bash
+python -m src.tuning.optuna_tuner egso_cnn config/benchmarks.yaml --trials 100 --cv 3
+```
+This will automatically save the best parameters back to `config/benchmarks.yaml`.
+
+**5. Generate comparison report**
 
 Once models are trained, use the global evaluator to generate visual comparisons and a leaderboard:
 ```bash
