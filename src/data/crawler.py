@@ -103,11 +103,16 @@ def crawl_dataset(num_legit: int, num_phish: int, output_dir: str, phishtank_key
     successful_urls = []
     successful_html = []
     
+    import re
+    # ILLEGAL_CHARACTERS_RE pattern for Excel
+    illegal_chars = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]')
+    
     for category, url in tqdm(targets, desc="Fetching HTML"):
         html = fetch_html(url, timeout=timeout)
         if html and len(html.strip()) > 100: # Ensure valid HTML size
+            clean_html = illegal_chars.sub('', html)
             successful_urls.append({'Category': category, 'Data': url})
-            successful_html.append({'Category': category, 'Data': html})
+            successful_html.append({'Category': category, 'Data': clean_html})
             
     logger.info(f"Successfully fetched {len(successful_urls)}/{len(targets)} websites.")
     
