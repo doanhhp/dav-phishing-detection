@@ -44,21 +44,19 @@ def run_experiment(model_name: str, config_path: str, samples: int = None):
     model_config = ConfigLoader.get_model_config(config, model_name)
     global_config = ConfigLoader.get_global_config(config)
     
-    # Merge global configs into model config
-    model_config.update({
-        "batch_size": global_config.get("batch_size", 32),
-        "epochs": global_config.get("epochs", 10),
-        "random_seed": global_config.get("random_seed", 42)
-    })
+    # Merge global configs into model config (only if not already set)
+    for key in ["batch_size", "epochs", "random_seed"]:
+        if key not in model_config and key in global_config:
+            model_config[key] = global_config[key]
 
     # 2. Load dataset
     url_path = "data/raw/URL.xlsx"
-    html_path = "data/raw/html.xlsx" if model_name == "webphish_cnn" else None
+    html_path = "data/raw/html.xlsx" if model_name in ["webphish_cnn", "egso_cnn"] else None
     
     df, y = load_data(url_path, html_path, samples=samples)
     
     # 3. Split data
-    X = df['Data'] if model_name != "webphish_cnn" else df[['Data', 'html']]
+    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn"] else df['Data']
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, 
         test_size=global_config.get("test_split", 0.2),

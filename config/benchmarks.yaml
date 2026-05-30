@@ -48,6 +48,10 @@ models:
 
   egso_cnn:
     type: "tensorflow"
+    n_estimators: 200
+    max_depth: 30
+    min_samples_split: 5
+    min_samples_leaf: 2
     filters: [64, 128, 256]
     kernel_size: 3
     dropout: 0.5
