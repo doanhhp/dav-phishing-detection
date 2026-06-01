@@ -51,13 +51,13 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
 
     # 2. Load dataset
     url_path = "data/raw/URL.xlsx"
-    html_path = "data/raw/html.xlsx" if model_name in ["webphish_cnn", "egso_cnn"] else None
+    html_path = "data/raw/html.xlsx" if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn"] else None
     
     df, y = load_data(url_path, html_path, samples=samples)
 
     # 3. Split data & CV Setup
-    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn"] else df['Data']
-    processor_name = model_config.get("feature_processor")
+    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn"] else df['Data']
+    processor_name = model_config.get("processor") or model_config.get("feature_processor")
     
     if cv:
         from sklearn.model_selection import StratifiedKFold
@@ -69,10 +69,22 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
             X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
             y_train, y_test = y[train_idx], y[test_idx]
             
+            logger.info(f"Extracting features for {model_name}...")
             feat_config = config.get("features", {}).get(processor_name, {})
             processor = FeatureFactory.get_processor(processor_name, feat_config)
             X_train_processed = processor.fit_transform(X_train)
             X_test_processed = processor.transform(X_test)
+            
+            # Save processor and pre-processed data
+            import joblib
+            proc_dir = Path(f"data/processed/{model_name}")
+            proc_dir.mkdir(parents=True, exist_ok=True)
+            joblib.dump(processor, proc_dir / "processor.joblib")
+            joblib.dump(X_train_processed, proc_dir / "X_train.joblib")
+            joblib.dump(X_test_processed, proc_dir / "X_test.joblib")
+            joblib.dump(y_train, proc_dir / "y_train.joblib")
+            joblib.dump(y_test, proc_dir / "y_test.joblib")
+            logger.info(f"Processor and data saved to {proc_dir}")
             
             model = ModelFactory.create_model(model_name, model_config)
             model.fit(X_train_processed, y_train)
@@ -108,6 +120,17 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
         X_train_processed = processor.fit_transform(X_train)
         X_test_processed = processor.transform(X_test)
         
+        # Save processor and pre-processed data
+        import joblib
+        proc_dir = Path(f"data/processed/{model_name}")
+        proc_dir.mkdir(parents=True, exist_ok=True)
+        joblib.dump(processor, proc_dir / "processor.joblib")
+        joblib.dump(X_train_processed, proc_dir / "X_train.joblib")
+        joblib.dump(X_test_processed, proc_dir / "X_test.joblib")
+        joblib.dump(y_train, proc_dir / "y_train.joblib")
+        joblib.dump(y_test, proc_dir / "y_test.joblib")
+        logger.info(f"Processor and data saved to {proc_dir}")
+        
         logger.info(f"Creating model: {model_name}")
         model = ModelFactory.create_model(model_name, model_config)
         
@@ -134,7 +157,7 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
         json.dump(metrics, f, indent=4)
     
     if "sklearn" in model_config.get("type", ""):
-        save_path = exp_dir / "model.joblib"
+        save_path = exp_dir / "model"
     elif "pytorch" in model_config.get("type", ""):
         save_path = exp_dir / "model.pth"
     else:

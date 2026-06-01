@@ -42,10 +42,18 @@ class TfidfVaeProcessor:
                 html_features = ""
                 try:
                     if h and len(h) > 5:
-                        soup = BeautifulSoup(h, "html.parser")
-                        links = " ".join([a.get_text(separator=' ', strip=True) for a in soup.find_all('a')])
-                        lists = " ".join([li.get_text(separator=' ', strip=True) for li in soup.find_all(['ul', 'ol', 'li'])])
-                        titles = " ".join([t.get_text(separator=' ', strip=True) for t in soup.find_all('title')])
+                        import re
+                        def strip_tags(text):
+                            return re.sub(r'<[^>]+>', ' ', text)
+                            
+                        titles = " ".join(re.findall(r'<title[^>]*>(.*?)</title>', h, flags=re.IGNORECASE | re.DOTALL))
+                        links = " ".join(re.findall(r'<a[^>]*>(.*?)</a>', h, flags=re.IGNORECASE | re.DOTALL))
+                        lists = " ".join(re.findall(r'<(?:ul|ol|li)[^>]*>(.*?)</(?:ul|ol|li)>', h, flags=re.IGNORECASE | re.DOTALL))
+                        
+                        titles = strip_tags(titles).strip()
+                        links = strip_tags(links).strip()
+                        lists = strip_tags(lists).strip()
+                        
                         html_features = f"{titles} {links} {lists}"
                 except Exception:
                     pass

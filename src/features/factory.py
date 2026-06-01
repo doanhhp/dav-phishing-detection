@@ -21,6 +21,9 @@ class FeatureFactory:
         from .multimodal import MultimodalProcessor
         from .tfidf_svd import TfidfSvdProcessor
         from .tfidf_vae import TfidfVaeProcessor
+        from .structural import StructuralProcessor
+        from .hybrid import HybridProcessor
+        from .url_processor import UrlProcessor
 
         processors = {
             "manual": ManualFeatureProcessor,
@@ -29,6 +32,9 @@ class FeatureFactory:
             "multimodal": MultimodalProcessor,
             "tfidf_svd": TfidfSvdProcessor,
             "tfidf_vae": TfidfVaeProcessor,
+            "structural": StructuralProcessor,
+            "hybrid": HybridProcessor,
+            "url": UrlProcessor,
         }
 
         if processor_name not in processors:

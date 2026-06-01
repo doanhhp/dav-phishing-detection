@@ -20,6 +20,11 @@ class ModelFactory:
         from .rnn_gru import RNN_GRU
         from .webphish_cnn import WebPhish_CNN
         from .egso_cnn import EGSO_CNN
+        from .structural_dnn import Structural_DNN
+        from .structural_rf import Structural_RF
+        from .structural_gb import Structural_GB
+        from .structural_xgb import Structural_XGB
+        from .hybrid_nn import HybridNN
 
         models = {
             "hybrid_svm_knn": SVM_KNN,
@@ -27,6 +32,12 @@ class ModelFactory:
             "rnn_gru": RNN_GRU,
             "webphish_cnn": WebPhish_CNN,
             "egso_cnn": EGSO_CNN,
+            "structural_dnn": Structural_DNN,
+            "structural_rf": Structural_RF,
+            "url_rf": Structural_RF,
+            "structural_gb": Structural_GB,
+            "structural_xgb": Structural_XGB,
+            "hybrid_nn": HybridNN,
         }
 
         if model_name not in models:
