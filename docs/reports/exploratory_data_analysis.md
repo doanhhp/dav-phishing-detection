@@ -92,3 +92,27 @@ Attackers use fast-flux DNS, randomly generated domains (DGA), and highly comple
 We have successfully identified the core underlying problem. The final model should **not** rely on TF-IDF or Word Embeddings.
 
 Instead, the final architecture should be a **Tree-Based Ensemble (Random Forest or XGBoost)** trained exclusively on these deep structural invariant features. By ignoring *what* the page says, and focusing entirely on *how* it is mathematically structured, we create a classifier that is highly resistant to Domain Shift and evasion tactics!
+
+
+---
+# Part: Advanced Behavioral Properties
+---
+
+To understand *why* the structures differ, we extracted behavioral quirks that expose the malicious intent of scammers.
+
+### 1. The 'Dead Link' Phenomenon
+Legitimate sites have rich navigation. Phishers only care about the login form and leave other links empty (`href="#"`).
+![Dead Links](../assets/zero_day_analysis/adv_eda_dead_links.png)
+
+### 2. The Text-to-Code Ratio
+Phishing sites are often just a background image and an input box, meaning they have almost no actual readable text compared to the massive amount of HTML code.
+![Text to Code](../assets/zero_day_analysis/adv_eda_text_to_code.png)
+
+### 3. Hyper-Focus on Inputs
+Phishing sites have an unnaturally high density of `<input>` fields relative to the rest of the page.
+![Input Density](../assets/zero_day_analysis/adv_eda_input_density.png)
+
+### 4. Deep Obfuscation in URLs
+Scammers hide the real domain by using many subdomains or deep paths.
+![URL Obfuscation](../assets/zero_day_analysis/adv_eda_url_obfuscation.png)
+

@@ -19,6 +19,14 @@ This document organizes the key graphs and analyses into a logical narrative flo
    - **Key Point:** Legitimate websites are incredibly complex. Modern zero-day phishing sites are structurally stripped down.
 2. **[Modern Evasion Tactics](assets/zero_day_analysis/ood_eda_evasion.png)**
    - **Key Point:** Modern phishing heavily relies on iframes and hidden elements (`display:none`) to deceive users and evade scrapers.
+3. **[The "Dead Link" Phenomenon](assets/zero_day_analysis/adv_eda_dead_links.png)**
+   - **Key Point:** Phishing sites don't bother building "About Us" pages. An enormous percentage of their links point to nowhere (`href="#"`), exposing their laziness.
+4. **[Text-to-Code Ratio](assets/zero_day_analysis/adv_eda_text_to_code.png)**
+   - **Key Point:** Phishing sites are mostly HTML code (forms and images) with very little actual readable paragraph text compared to legitimate sites.
+5. **[Input Tag Density](assets/zero_day_analysis/adv_eda_input_density.png)**
+   - **Key Point:** Scammers have a hyper-focus on stealing data, resulting in a significantly higher density of `<input>` fields per page.
+6. **[URL Obfuscation](assets/zero_day_analysis/adv_eda_url_obfuscation.png)**
+   - **Key Point:** Scammers hide behind deeply nested paths (`/login/secure/step1`) and high subdomain counts (`auth.update.paypal.xyz`) to trick users.
 
 ## Part 3: The Solution (Structural Features)
 *Explain how your Random Forest focuses on structure instead of text.*
