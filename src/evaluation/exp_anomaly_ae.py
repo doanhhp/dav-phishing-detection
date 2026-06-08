@@ -60,7 +60,7 @@ def main():
     plt.legend()
     plt.tight_layout()
     plt.savefig(r"D:\Desktop\PhishingDetection\doc\assets\anomaly_ae_mse.png")
-    print("Saved MSE distribution plot to doc/assets/anomaly_ae_mse.png")
+    print("Saved MSE distribution plot to doc/assets/archive/anomaly_ae_mse.png")
     
     # Set threshold based on 90th percentile of HAM (accepting 10% false positive rate)
     threshold = np.percentile(ood_mse[y_ood == 0], 90)

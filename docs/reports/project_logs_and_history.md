@@ -1,3 +1,9 @@
+
+
+---
+# Part: Project Log
+---
+
 # Phishing Detection Benchmark: Project Log & Journey
 
 This document captures the chronological development, experimental results, and logical thinking process behind the Phishing Detection framework we built together.
@@ -66,3 +72,80 @@ We retrained the models with these 44 advanced features, achieving an outstandin
 
 ### Ultimate Conclusion
 Our extensive experiments prove that **URL heuristics are dead** and **unsupervised anomaly detection fails due to the simplicity paradox**. The champion remains our standalone, supervised `structural_rf` model, which explicitly learned the structural constraints of phishing code.
+
+
+---
+# Part: Research Log
+---
+
+# Phishing Detection Research Log
+
+## 1. Initial State
+The project began by evaluating the `webphish_cnn` architecture (accuracy: 65%) and a basic `lstm_url` model. Neural network architectures heavily rely on textual tokens (words in the URL and HTML).
+
+## 2. The Domain Shift Problem
+When tested on **Out-of-Distribution (OOD)** live data from the internet, models trained on static lexical features suffered massive performance degradation. 
+- **Cause:** Attackers dynamically change the tokens (e.g., using random domains, obfuscating HTML) to easily bypass these filters.
+- **Our Hypothesis:** Mathematical structural features (length, element counts, ratios) are *invariant* to these obfuscation tactics.
+
+## 3. Structural Feature Engineering
+We built `StructuralProcessor` to extract numerical properties rather than raw text. 
+Initially, we extracted 15 features. We then expanded this to **25 features** to deeply analyze structural anomalies:
+- Path depths
+- HTTPS usage
+- Mailto links
+- Password fields
+- Obfuscation techniques (`unescape`, `eval`)
+- Empty anchor tags
+
+## 4. Modeling & Results
+We applied Tree-based models (Random Forest, XGBoost) to this structural tabular data, as tree-based models significantly outperform Deep Learning on small-dimension tabular datasets.
+
+### Feature Importances (Random Forest)
+After plotting the Gini Importances, our Top 5 Structural Features were:
+1. `html_length` (0.245)
+2. `html_empty_links` (0.156) - A huge indicator, as phishing kits often have dead links in their visual clones!
+3. `html_num_tags` (0.105)
+4. `html_script_count` (0.063)
+5. `html_title_length` (0.055)
+
+### OOD Leaderboard
+By running `evaluate_ood.py`, we proved our hypothesis:
+- `structural_rf` achieved **71.7% Accuracy** and **0.744 ROC AUC** on the live internet data.
+- This successfully outperformed the `webphish_cnn` baseline (65.3%), proving that structural invariants are much more resistant to Domain Shift than textual tokens.
+
+## Next Steps
+To continue improving OOD robustness without active retraining, future research should focus on:
+1. Extracting external metadata constraints (WHOIS domain age, TLS certificate validation).
+2. Screenshot-based visual similarity analysis (CNNs on rendered web pages).
+
+
+---
+# Part: Presentation Assets
+---
+
+# Phishing Detection Presentation Assets
+
+This document contains all the primary visual assets and talking points for your class presentation regarding the discovery of "Content Shift" in zero-day phishing attacks.
+
+## 1. The Fall of URL Heuristics (Domain Shift)
+**File:** `assets/archive/plot_model_robustness.png`
+*   **The Story:** Historically, human intuition worked perfectly. We built a model using pure URL heuristics (entropy, subdomains, suspicious TLDs) and it achieved 91.3% accuracy on historical data. 
+*   **The Twist:** When tested on live 2026 Out-Of-Distribution (OOD) data, accuracy plummeted to 18.7%. Scammers have learned to use clean, short `.com` domains to bypass heuristics.
+*   **The Solution:** Structural HTML Analysis maintained a 68.8% accuracy, proving we must look at the code, not the cover.
+
+## 2. The Simplicity Paradox (Why Autoencoders Failed)
+**File:** `assets/feature_importance/plot_simplicity_paradox.png`
+*   **The Story:** We tried to use Anomaly Detection (an Autoencoder trained on Legitimate sites) to catch zero-day phishing. We expected phishing to have high reconstruction errors.
+*   **The Twist:** The Autoencoder was actually *better* at reconstructing Phishing sites than Legitimate ones! 
+*   **The Reality:** Phishing sites are not complex anomalies; they are structurally *simple* subsets (e.g., just a tiny hidden form). A neural net trained on complex legitimate sites finds these simple structures incredibly easy to reconstruct, breaking the anomaly threshold.
+
+## 3. The Winning Approach: Structural Features
+**File:** `assets/feature_importance/plot_winning_features.png`
+*   **The Story:** Since URLs fail and Anomaly Detection fails, what works? Supervised Random Forests explicitly trained on Structural DOM features.
+*   **The Features:** The model heavily relies on structural density (`html_length`, `html_num_tags`) and link distributions (`tag_tfidf_a`, `tag_tfidf_li`). Legitimate sites are dense and rich; phishing sites are sparse and hollow.
+
+## 4. The Reality of Evasion (Why "Bulletproof" Features Fail)
+**File:** `assets/archive/plot_failed_features.png`
+*   **The Story:** We engineered features like "Form Action Discrepancy" and "Brand Discrepancy", assuming they were bulletproof signs of phishing.
+*   **The Reality:** These ranked at the very bottom of the feature importance chart (< 0.005). Scammers actively engineer around these by using generic `<title>` tags ("Secure Login") and relative paths (`action="/post.php"`), preventing the model from calculating a discrepancy.

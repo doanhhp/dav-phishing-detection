@@ -1,3 +1,67 @@
+
+
+---
+# Part: Side By Side Eda Report
+---
+
+# Side-By-Side EDA: 2021 vs 2026
+
+This report compares the structural characteristics of the historical 2021 dataset against the modern 2026 zero-day dataset to map the evolution of phishing.
+
+## 1. Summary Statistics (Averages)
+
+|                                     |   dom_depth |   tag_diversity |   hidden_elements |   num_iframes |
+|:------------------------------------|------------:|----------------:|------------------:|--------------:|
+| ('Historical (2021)', 'Legitimate') |      13.658 |          21.539 |             1.123 |         0.341 |
+| ('Historical (2021)', 'Phishing')   |       7.183 |          12.371 |             0.567 |         0.089 |
+| ('Zero-Day (2026)', 'Legitimate')   |      10.809 |          15.455 |             0.52  |         0.182 |
+| ('Zero-Day (2026)', 'Phishing')     |       9.135 |          12.5   |             0.296 |         0.015 |
+
+## 2. Visualizations
+
+### The Evolution of Phishing URLs
+![URL Distribution](assets/domain_shift/side_by_side_url.png)
+
+### Structural Shift
+![Structural Complexity](assets/domain_shift/side_by_side_structure.png)
+
+### Modern Evasion Tactics
+![Evasion Tactics](assets/domain_shift/side_by_side_evasion.png)
+
+
+
+---
+# Part: Ood Eda Report
+---
+
+# Zero-Day (OOD) Exploratory Data Analysis
+
+This report analyzes the structural and textual characteristics of the 2026 Zero-Day (OOD) dataset to understand the modern threat landscape.
+
+## 1. Summary Statistics (Averages)
+
+| label_name   |   url_length |   url_entropy |   html_length |   dom_depth |   tag_diversity |   hidden_elements |   num_iframes |   external_resource_ratio |
+|:-------------|-------------:|--------------:|--------------:|------------:|----------------:|------------------:|--------------:|--------------------------:|
+| Legitimate   |       19.062 |         3.658 |       29480.4 |      10.809 |          15.455 |             0.52  |         0.182 |                     0.239 |
+| Phishing     |       36.423 |         4.023 |       12550.8 |       9.135 |          12.5   |             0.296 |         0.015 |                     0.245 |
+
+## 2. Analytical Findings
+
+### URL Patterns
+![URL Distribution](assets/zero_day_analysis/ood_eda_url.png)
+
+### Structural Complexity (The Simplicity Paradox)
+![Structural Complexity](assets/zero_day_analysis/ood_eda_structure.png)
+
+### Evasion Tactics (Iframes & Hidden Elements)
+![Evasion Tactics](assets/zero_day_analysis/ood_eda_evasion.png)
+
+
+
+---
+# Part: Deep Eda Report
+---
+
 # Deep Structural EDA Report
 
 ## The Core Problem: Why "Good" Models Fail in the Wild
