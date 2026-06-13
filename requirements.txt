@@ -26,4 +26,7 @@ pytest-cov>=4.1.0
 # Utilities
 tqdm>=4.65.0
 optuna>=3.0.0
-requests>=2.31.0shap>=0.42.1
+requests>=2.31.0
+
+# Explainable AI
+shap>=0.50.0
