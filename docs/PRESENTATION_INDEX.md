@@ -28,63 +28,23 @@ This document organizes the key graphs and analyses into a logical narrative flo
 6. **[URL Obfuscation](assets/zero_day_analysis/adv_eda_url_obfuscation.png)**
    - **Key Point:** Scammers hide behind deeply nested paths (`/login/secure/step1`) and high subdomain counts (`auth.update.paypal.xyz`) to trick users.
 
-# Presentation Guide: Defeating Phishing Content Shift
-
-This document organizes the key graphs and analyses into a logical narrative flow for your presentation.
-
-## Part 1: The Problem (Domain Shift)
-*Prove to the audience that 2021 data is vastly different from 2026 data.*
-
-1. **[Dimensionality Reduction (t-SNE)](assets/domain_shift/domain_shift_t-sne.png)**
-   - **Key Point:** The 2021 training data (red) and 2026 zero-day data (blue) occupy completely different spaces. This is why models trained in 2021 fail in 2026.
-2. **[Evolution of Phishing URLs](assets/domain_shift/side_by_side_url.png)**
-   - **Key Point:** Comparing 2021 vs 2026 shows that scammers completely changed their URL structures (length and entropy).
-3. **[Structural Shift](assets/domain_shift/side_by_side_structure.png)**
-   - **Key Point:** The underlying HTML structure (DOM depth, Tag Diversity) of phishing sites has also shifted over 5 years.
-
-## Part 2: The Modern Threat (Zero-Day Analysis)
-*What does a modern 2026 phishing attack actually look like compared to a legitimate site?*
-
-1. **[Structural Complexity (The Simplicity Paradox)](assets/zero_day_analysis/ood_eda_structure.png)**
-   - **Key Point:** Legitimate websites are incredibly complex. Modern zero-day phishing sites are structurally stripped down.
-2. **[Modern Evasion Tactics](assets/zero_day_analysis/ood_eda_evasion.png)**
-   - **Key Point:** Modern phishing heavily relies on iframes and hidden elements (`display:none`) to deceive users and evade scrapers.
-3. **[The "Dead Link" Phenomenon](assets/zero_day_analysis/adv_eda_dead_links.png)**
-   - **Key Point:** Phishing sites don't bother building "About Us" pages. An enormous percentage of their links point to nowhere (`href="#"`), exposing their laziness.
-4. **[Text-to-Code Ratio](assets/zero_day_analysis/adv_eda_text_to_code.png)**
-   - **Key Point:** Phishing sites are mostly HTML code (forms and images) with very little actual readable paragraph text compared to legitimate sites.
-5. **[Input Tag Density](assets/zero_day_analysis/adv_eda_input_density.png)**
-   - **Key Point:** Scammers have a hyper-focus on stealing data, resulting in a significantly higher density of `<input>` fields per page.
-6. **[URL Obfuscation](assets/zero_day_analysis/adv_eda_url_obfuscation.png)**
-   - **Key Point:** Scammers hide behind deeply nested paths (`/login/secure/step1`) and high subdomain counts (`auth.update.paypal.xyz`) to trick users.
-
 ## Part 3: The Solution (Structural Features)
 *Explain how your Random Forest focuses on structure instead of text.*
 
 1. **[Feature Importance](assets/feature_importance/feature_importance.png)**
    - **Key Point:** The model ignores words and heavily weights structural indicators (external resources, DOM depth, and hidden elements).
 
-## Part 4: Explainable AI (XAI) & Interpretability
-*Proving to the audience that the model isn't just a black box.*
+## Part 4: Explainable AI & Structural Invariants
+- **[Explainable AI Report](file:///d:/Desktop/PhishingDetection/docs/reports/explainable_ai_report.md)**
+  - Why text-based models are "black boxes".
+  - Proving the "Simplicity Paradox" via SHAP visualization (DOM Depth & Tag Diversity).
+  - Unmasking Zero-Day templates using Form Action anomalies.
 
-1. **[XAI Master Report](reports/explainable_ai_report.md)**
-   - Link to the full SHAP breakdown across multiple models.
-2. **The Beeswarm Proof (`docs/assets/explainable_ai/structural_rf/shap_summary.png`)**
-   - **Key Point:** Show the SHAP summary plot. Explain how it proves that structural invariants mathematically push the model toward predicting a site as phishing.
-3. **Cross-Algorithm Verification (`docs/assets/explainable_ai/structural_xgb/shap_summary.png`)**
-   - **Key Point:** Show that XGBoost learned the exact same structural rules as the Random Forest, proving this is a property of the data, not a quirk of a specific algorithm.
-4. **Local Waterfall Dissection (`docs/assets/explainable_ai/structural_rf/shap_local_waterfall.png`)**
-   - **Key Point:** Walk the audience through a single Zero-Day prediction. Show how SHAP decomposes the prediction down to the exact percentage contribution of every single DOM element.
-
-## Part 5: The Ultimate Proof (Model Comparisons)
-*Prove that your Structural Random Forest outperforms Deep Learning models.*
-
-1. **[Transfer Learning Failure](assets/model_comparisons/dl_few_shot_comparison.png)**
-   - **Key Point:** Trying to fine-tune a pre-trained Deep Learning model on the new data fails because the frozen text embeddings are anchored to 2021 keywords (e.g., "paypal" instead of "crypto").
-2. **[Retraining from Scratch Failure (Catastrophic Dilution)](assets/model_comparisons/dl_retrain_comparison.png)**
-   - **Key Point:** Even if you completely rebuild the Deep Learning model from scratch by mixing 3,000 old samples with 200 new samples, the new zero-day keywords are treated as statistical noise. The old data actively dilutes the new data.
-3. **[The Winning Strategy](assets/model_comparisons/few_shot_comparison.png)**
-   - **Key Point:** The absolute best strategy is to throw away the historical data entirely and train a lightweight Structural Random Forest purely on a handful of new samples. It adapts instantly to structural invariants and hits 99.7% accuracy.
+## Part 5: The Ultimate Architecture (Incremental XGBoost)
+- **[Model Comparisons](file:///d:/Desktop/PhishingDetection/docs/assets/model_comparisons/)**
+  - The Failure of Unsupervised Anomaly Detection (Autoencoders).
+  - Why standard XGBoost suffers from Catastrophic Dilution on historical data.
+  - The breakthrough of **Incremental Learning (Rolling Window)** achieving 94.1% Zero-Day Accuracy.
 
 ---
 **Detailed Reports:**
