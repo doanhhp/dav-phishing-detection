@@ -176,9 +176,12 @@ def run_benchmark(dataset_name, data_path):
     
     return results
 
+print("\n--- Step 3: Benchmarking Architectures ---\n")
 benchmark_results = {}
-if os.path.exists(os.path.join(EXTERNAL_DIR, "phreshphish.csv")):
-    benchmark_results["PhreshPhish"] = run_benchmark("PhreshPhish", os.path.join(EXTERNAL_DIR, "phreshphish.csv"))
+
+# Run Benchmark for PhreshPhish
+if os.path.exists(os.path.join(EXTERNAL_DIR, "phreshphish.parquet")):
+    benchmark_results["PhreshPhish"] = run_benchmark("PhreshPhish", os.path.join(EXTERNAL_DIR, "phreshphish.parquet"))
 
 # Save results for documentation
 with open(os.path.join(EXTERNAL_DIR, "benchmark_results.json"), "w") as f:
