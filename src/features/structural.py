@@ -15,8 +15,8 @@ class StructuralProcessor:
     def __init__(self, config: dict):
         self.config = config
         self.scaler = StandardScaler()
-        # Structural Skeletoning (DOM Tag NLP)
-        self.tfidf = TfidfVectorizer(max_features=12, token_pattern=r'(?u)\b\w+\b')
+        # Structural Skeletoning (DOM Tag NLP - Template Mining)
+        self.tfidf = TfidfVectorizer(max_features=50, ngram_range=(2, 3), token_pattern=r'(?u)\b\w+\b')
         self.fitted = False
 
     def _entropy(self, string):
@@ -33,6 +33,7 @@ class StructuralProcessor:
         # --- URL Features (Lexical) ---
         features.append(len(url))
         features.append(url.count('.'))
+        features.append(1 if str(url).lower().startswith('https') else 0)
         features.append(sum(url.count(c) for c in ['-', '@', '?', '=', '%', '_']))
         features.append(sum(c.isdigit() for c in url) / max(1, len(url)))
         parsed = urlparse(url if url.startswith('http') else f"http://{url}")
@@ -42,6 +43,18 @@ class StructuralProcessor:
         login_keywords = ['login', 'signin', 'auth', 'secure', 'update', 'account', 'verify', 'webscr']
         features.append(1 if any(kw in url.lower() for kw in login_keywords) else 0)
         features.append(1 if '-' in domain else 0)
+        
+        # --- Brand Mimicry / Typosquatting ---
+        top_brands = ['roblox', 'github', 'paypal', 'microsoft', 'apple', 'google', 'amazon', 'netflix', 'facebook', 'chase', 'wellsfargo', 'steam', 'discord', 'instagram', 'linkedin', 'adobe']
+        domain_parts = domain.lower().split('.')
+        root_domain = ".".join(domain_parts[-2:]) if len(domain_parts) >= 2 else domain
+        
+        brand_mimicry = 0
+        for brand in top_brands:
+            if brand in url.lower() and brand not in root_domain:
+                brand_mimicry = 1
+                break
+        features.append(brand_mimicry)
         
         # --- HTML Features ---
         features.append(len(html))
@@ -192,8 +205,8 @@ class StructuralProcessor:
 
     def get_feature_names(self):
         base_features = [
-            'url_length', 'url_num_dots', 'url_num_special_chars', 'url_digit_ratio',
-            'url_num_subdomains', 'url_entropy', 'url_path_depth', 'url_has_login', 'url_hyphen_domain',
+            'url_length', 'url_num_dots', 'is_https', 'url_num_special_chars', 'url_digit_ratio',
+            'url_num_subdomains', 'url_entropy', 'url_path_depth', 'url_has_login', 'url_hyphen_domain', 'known_brand_mimicry',
             'html_length', 'html_num_tags', 'html_text_ratio', 'html_script_count',
             'html_external_link_ratio', 'html_password_input_count',
             'html_empty_link_ratio', 'html_input_to_p_ratio', 'css_hidden_count',
@@ -203,4 +216,4 @@ class StructuralProcessor:
         if getattr(self, 'fitted', False) and hasattr(self.tfidf, 'get_feature_names_out'):
             tfidf_features = [f"tag_tfidf_{feat}" for feat in self.tfidf.get_feature_names_out()]
             return base_features + tfidf_features
-        return base_features + [f"tag_tfidf_{i}" for i in range(12)]
+        return base_features + [f"tag_tfidf_{i}" for i in range(50)]

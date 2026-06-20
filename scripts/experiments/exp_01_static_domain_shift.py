@@ -19,19 +19,12 @@ def main():
     
     y_train = df_train_url['Category'].map({'ham': 0, 'spam': 1}).values
     
-    print("Extracting Structural Features for Training...")
-    proc_path = "data/processed/structural_rf/processor.joblib"
-    if os.path.exists(proc_path):
-        struct_proc = joblib.load(proc_path)
-        df_train_raw = df_train_url[['Data']].copy()
-        df_train_raw['html'] = df_train_html['Data']
-        X_train = struct_proc.transform(df_train_raw)
-    else:
-        from src.features.structural import StructuralProcessor
-        struct_proc = StructuralProcessor({})
-        df_train_raw = df_train_url[['Data']].copy()
-        df_train_raw['html'] = df_train_html['Data']
-        X_train = struct_proc.fit_transform(df_train_raw)
+    print("Extracting Structural Features for Training (Forcing Retrain for N-Grams)...")
+    from src.features.structural import StructuralProcessor
+    struct_proc = StructuralProcessor({})
+    df_train_raw = df_train_url[['Data']].copy()
+    df_train_raw['html'] = df_train_html['Data']
+    X_train = struct_proc.fit_transform(df_train_raw)
 
     print("\n--- 2. Building & Training Models ---")
     
