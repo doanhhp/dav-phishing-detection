@@ -15,25 +15,17 @@ class FeatureFactory:
         Returns:
             Feature processor instance
         """
-        from .manual import ManualFeatureProcessor
         from .sequential import SequentialTokenProcessor
         from .rnn_gru import RnnGruProcessor
         from .multimodal import MultimodalProcessor
-        from .tfidf_svd import TfidfSvdProcessor
-        from .tfidf_vae import TfidfVaeProcessor
         from .structural import StructuralProcessor
-        from .hybrid import HybridProcessor
         from .url_processor import UrlProcessor
 
         processors = {
-            "manual": ManualFeatureProcessor,
             "sequential": SequentialTokenProcessor,
             "rnn_gru": RnnGruProcessor,
             "multimodal": MultimodalProcessor,
-            "tfidf_svd": TfidfSvdProcessor,
-            "tfidf_vae": TfidfVaeProcessor,
             "structural": StructuralProcessor,
-            "hybrid": HybridProcessor,
             "url": UrlProcessor,
         }
 

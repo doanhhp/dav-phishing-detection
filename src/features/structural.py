@@ -44,17 +44,7 @@ class StructuralProcessor:
         features.append(1 if any(kw in url.lower() for kw in login_keywords) else 0)
         features.append(1 if '-' in domain else 0)
         
-        # --- Brand Mimicry / Typosquatting ---
-        top_brands = ['roblox', 'github', 'paypal', 'microsoft', 'apple', 'google', 'amazon', 'netflix', 'facebook', 'chase', 'wellsfargo', 'steam', 'discord', 'instagram', 'linkedin', 'adobe']
-        domain_parts = domain.lower().split('.')
-        root_domain = ".".join(domain_parts[-2:]) if len(domain_parts) >= 2 else domain
-        
-        brand_mimicry = 0
-        for brand in top_brands:
-            if brand in url.lower() and brand not in root_domain:
-                brand_mimicry = 1
-                break
-        features.append(brand_mimicry)
+        # --- Brand Mimicry removed per user request ---
         
         # --- HTML Features ---
         features.append(len(html))
@@ -206,7 +196,7 @@ class StructuralProcessor:
     def get_feature_names(self):
         base_features = [
             'url_length', 'url_num_dots', 'is_https', 'url_num_special_chars', 'url_digit_ratio',
-            'url_num_subdomains', 'url_entropy', 'url_path_depth', 'url_has_login', 'url_hyphen_domain', 'known_brand_mimicry',
+            'url_num_subdomains', 'url_entropy', 'url_path_depth', 'url_has_login', 'url_hyphen_domain',
             'html_length', 'html_num_tags', 'html_text_ratio', 'html_script_count',
             'html_external_link_ratio', 'html_password_input_count',
             'html_empty_link_ratio', 'html_input_to_p_ratio', 'css_hidden_count',
