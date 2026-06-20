@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from xgboost import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, recall_score, roc_auc_score
 from src.features.structural import StructuralProcessor
 from src.utils.config_loader import ConfigLoader
@@ -18,7 +20,20 @@ def run_kfold_evaluation(dataset_name, X, y, n_splits=5):
     print(f"\nEvaluating {dataset_name} ({len(X)} samples) with {n_splits}-Fold CV...")
     
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-    acc_scores, recall_scores, auc_scores = [], [], []
+    models = {
+        "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
+        "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42),
+        "XGBoost": XGBClassifier(
+            n_estimators=100, 
+            learning_rate=0.1, 
+            max_depth=6, 
+            random_state=42, 
+            use_label_encoder=False, 
+            eval_metric='logloss'
+        )
+    }
+    
+    results = {name: {"acc": [], "rec": [], "auc": []} for name in models}
     
     config = ConfigLoader.load_yaml("config/benchmarks.yaml")
     
@@ -32,28 +47,29 @@ def run_kfold_evaluation(dataset_name, X, y, n_splits=5):
         X_train_proc = processor.fit_transform(X_train)
         X_test_proc = processor.transform(X_test)
         
-        # Train XGBoost
-        model = XGBClassifier(
-            n_estimators=100, 
-            learning_rate=0.1, 
-            max_depth=6, 
-            random_state=42, 
-            use_label_encoder=False, 
-            eval_metric='logloss'
-        )
-        model.fit(X_train_proc, y_train)
-        
-        y_pred = model.predict(X_test_proc)
-        y_proba = model.predict_proba(X_test_proc)[:, 1]
-        
-        acc_scores.append(accuracy_score(y_test, y_pred))
-        recall_scores.append(recall_score(y_test, y_pred))
-        auc_scores.append(roc_auc_score(y_test, y_proba))
-        
-        print(f"  Fold {fold}: Acc {acc_scores[-1]:.4f} | Recall {recall_scores[-1]:.4f} | AUC {auc_scores[-1]:.4f}")
+        print(f"  --- Fold {fold} ---")
+        for name, model in models.items():
+            model.fit(X_train_proc, y_train)
+            
+            y_pred = model.predict(X_test_proc)
+            y_proba = model.predict_proba(X_test_proc)[:, 1]
+            
+            acc = accuracy_score(y_test, y_pred)
+            rec = recall_score(y_test, y_pred)
+            auc = roc_auc_score(y_test, y_proba)
+            
+            results[name]["acc"].append(acc)
+            results[name]["rec"].append(rec)
+            results[name]["auc"].append(auc)
+            
         fold += 1
         
-    print(f"--> Average {dataset_name}: Acc: {np.mean(acc_scores):.4f}, Recall: {np.mean(recall_scores):.4f}, AUC: {np.mean(auc_scores):.4f}")
+    print(f"\n--> {dataset_name} K-Fold Averages:")
+    for name in models:
+        avg_acc = np.mean(results[name]["acc"])
+        avg_rec = np.mean(results[name]["rec"])
+        avg_auc = np.mean(results[name]["auc"])
+        print(f"  {name}: Acc {avg_acc:.4f} | Recall {avg_rec:.4f} | AUC {avg_auc:.4f}")
 
 def main():
     print("--- Experiment 8: XPath Sequences & Cloaking Indicators ---")
