@@ -33,7 +33,7 @@ def load_data(url_path: str, html_path: str = None, samples: int = None):
     
     return df_url, y
 
-def run_experiment(model_name: str, config_path: str, samples: int = None, cv: int = None, exp_suffix: str = ""):
+def run_experiment(model_name: str, config_path: str, samples: int = None, cv: int = None, exp_suffix: str = "", url_path: str = None, html_path: str = None):
     """
     Run a single model experiment.
     """
@@ -50,9 +50,12 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
             model_config[key] = global_config[key]
 
     # 2. Load dataset
-    url_path = "data/raw/URL.xlsx"
-    html_path = "data/raw/html.xlsx" if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn"] else None
+    if not url_path:
+        url_path = "data/raw/URL.xlsx"
     
+    if not html_path and model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn"]:
+        html_path = "data/raw/html.xlsx"
+        
     df, y = load_data(url_path, html_path, samples=samples)
 
     # 3. Split data & CV Setup
@@ -181,6 +184,8 @@ if __name__ == "__main__":
     parser.add_argument("--samples", type=int, default=None, help="Number of samples to use")
     parser.add_argument("--cv", type=int, default=None, help="Number of CV folds")
     parser.add_argument("--exp_suffix", type=str, default="", help="Suffix for experiment directory")
+    parser.add_argument("--url_path", type=str, default=None, help="Path to URL dataset")
+    parser.add_argument("--html_path", type=str, default=None, help="Path to HTML dataset")
     
     args = parser.parse_args()
-    run_experiment(args.model, args.config, samples=args.samples, cv=args.cv, exp_suffix=args.exp_suffix)
+    run_experiment(args.model, args.config, samples=args.samples, cv=args.cv, exp_suffix=args.exp_suffix, url_path=args.url_path, html_path=args.html_path)

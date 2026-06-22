@@ -1,6 +1,6 @@
 # Phishing Detection Benchmark Framework
 
-A comparative evaluation of five phishing detection methods for malicious URL and HTML classification.
+A comparative evaluation of eleven phishing detection methods, culminating in robust Tree-based structural models that eliminate "Domain Shift" decay.
 
 ---
 
@@ -10,19 +10,26 @@ A comparative evaluation of five phishing detection methods for malicious URL an
 |---|---|---|
 | **Hybrid SVM+KNN** | Traditional ML | Manually engineered features |
 | **LSTM URL-Only** | Deep Learning | Raw character sequences of URLs |
-| **WebPhish CNN** | Deep Learning | State-of-the-art multi-modal CNN (99.03% accuracy) |
-| **EGSO-CNN (2025)** | Deep Learning | Optimized CNN utilizing both URL and HTML with TF-IDF and dimensionality reduction |
+| **WebPhish CNN** | Deep Learning | State-of-the-art multi-modal CNN (99.03% in-distribution accuracy) |
+| **EGSO-CNN (2025)** | Deep Learning | Optimized CNN utilizing both URL and HTML with TF-IDF |
 | **RNN-GRU** | Deep Learning | Sequential model for textual web data |
+| **Structural RF** | Tree Ensemble | Random Forest on 21 invariant structural features (Highly robust to OOD) |
+| **Structural XGB** | Gradient Boosting | XGBoost on structural features |
+| **Structural GB** | Gradient Boosting | Gradient Boosting on structural features |
+| **Structural DNN** | Deep Learning | Deep Neural Net trained on structural features |
+| **URL RF** | Tree Ensemble | Random Forest on URL-only structural features |
+| **Hybrid NN** | Deep Learning | Complex Neural Network combining structural and sequential data |
 
 ---
 
 ## How it Works
-1. **Live Data Collection**: We fetch real-time URLs from OpenPhish, PhishTank, and Tranco to build an Out-of-Distribution (OOD) test set.
-2. **Structural Feature Engineering**: We extract **25 invariant structural features** (e.g. Empty links ratio, HTML length, Password Inputs) from URLs and HTML to prevent "Domain Shift" decay.
-3. **Modeling**: We apply Random Forest and XGBoost classifiers against these features to achieve superior generalization.
+1. **Live Data Collection**: We fetch real-time URLs from OpenPhish, PhishTank, and Tranco to build Out-of-Distribution (OOD) test sets.
+2. **Structural Feature Engineering**: Through iterative pruning, we distilled HTML and URL properties down to **21 invariant structural features** (e.g. Empty links ratio, HTML length, Password Inputs). This prevents the "Domain Shift" decay that destroys deep learning models on live data.
+3. **Modeling**: We apply Random Forest (`structural_rf`) and XGBoost (`structural_xgb`) classifiers against these features to achieve superior generalization.
+4. **Visual Analytics**: Advanced DOM tree probabilistic mapping using left-to-right hierarchy layout and ultra-deep (20 depth) topological analysis.
 
 ## Project Research & Logs
-Our experimental reasoning, feature importance analysis, and progression logs are stored in `docs/research_log.md`.
+Our experimental reasoning, feature importance analysis, probability DOM tree visualizations, and progression logs are stored in `docs/reports/advanced_adaptation_log.md` and `docs/research_log.md`.
 
 ## Quick Start
 
@@ -32,50 +39,44 @@ pip install -r requirements.txt
 ```
 
 **2. Configure models**
-
-Edit `config/benchmarks.yaml` to specify dataset paths, global settings, and model-specific hyperparameters.
+Edit `config/benchmarks.yaml` to specify global settings and model-specific hyperparameters.
 
 **3. Run experiments**
 
-Train and evaluate a single model:
+Train and evaluate a single model on the main dataset:
 ```bash
-python -m src.pipeline hybrid_svm_knn config/benchmarks.yaml
+python -m src.pipeline structural_rf config/benchmarks.yaml
 ```
 
-Or run the full benchmark suite across all five models with cross-validation:
+Evaluate a model on a completely new Out-of-Distribution (OOD) dataset:
 ```bash
-for model in hybrid_svm_knn lstm_url webphish_cnn egso_cnn rnn_gru; do
+python -m src.pipeline structural_rf config/benchmarks.yaml --url_path data/raw/OOD_URL.xlsx --html_path data/raw/OOD_html.xlsx
+```
+
+Run the full benchmark suite across all models with cross-validation:
+```bash
+for model in hybrid_svm_knn lstm_url webphish_cnn egso_cnn rnn_gru structural_rf structural_xgb; do
     python -m src.pipeline $model config/benchmarks.yaml --cv 5
 done
 ```
 
 **4. Hyperparameter Tuning**
-
-You can use the Optuna script to find the optimal configuration for a model using Bayesian optimization:
+Use the Optuna script to find optimal configurations for a model using Bayesian optimization:
 ```bash
 python -m src.tuning.optuna_tuner egso_cnn config/benchmarks.yaml --trials 100 --cv 3
 ```
-This will automatically save the best parameters back to `config/benchmarks.yaml`.
 
 **5. Generate comparison report**
-
-Once models are trained, use the global evaluator to generate visual comparisons and a leaderboard:
+Generate visual comparisons and a leaderboard:
 ```bash
 python -m src.evaluation.evaluate experiments/ reports/comparison/
 ```
 
-**6. Crawl Out-of-Distribution Data**
-
-To test your models on fresh, live websites, use the crawler. It fetches legitimate websites from Tranco and phishing websites from PhishTank or OpenPhish.
+**6. Crawl Live Out-of-Distribution Data**
+Fetch legitimate websites from Tranco and phishing websites from PhishTank or OpenPhish.
 ```bash
 python -m src.data.crawler --legit 500 --phish 100 --timeout 5
 ```
-*Note: PhishTank often limits public requests and occasionally disables new API registrations. If the PhishTank download fails or rate-limited, the crawler will automatically fall back to [OpenPhish's](https://openphish.com/) free live- **Phase 3 (Feature Pruning):** Pruned the bottom 7 least important features based on Tree models, yielding a lightweight 21-feature structural model that maintains >96% in-distribution accuracy.
-- **Phase 4 (OOD Validation):** Evaluated against a modern live dataset (Tranco top 1M + PhishTank) using structural invariant features. Revealed a stark domain shift causing model generalization failure on live data. Visualized using PCA/t-SNE/UMAP.ned models on this new out-of-distribution (OOD) data.
-```bash
-python -m src.evaluation.evaluate_ood config/benchmarks.yaml
-```
-*Note: Feature processors are automatically serialized to the `data/processed/` directory during training. `evaluate_ood.py` relies on these artifacts for instantaneous processing of raw HTML/URLs.*
 
 ---
 
@@ -83,29 +84,25 @@ python -m src.evaluation.evaluate_ood config/benchmarks.yaml
 
 ```
 PhishingDetection/
-├── .gitignore                   # Ignored files (data, artifacts, pycache)
-├── README.md                    # Project documentation
-├── requirements.txt             # Python dependencies
-│
-├── experiments/                 # Saved model weights (.pkl, .h5, .pt) and metrics, predictions
 ├── config/
 │   └── benchmarks.yaml          # Master configuration file
 ├── data/
-│   ├── raw/                     # Immutable original data (URL.xlsx, html.xlsx)
+│   ├── raw/                     # Original datasets (Main, OOD, PhreshPhish)
 │   └── processed/               # Cleaned, engineered feature matrices
-├── docs/                        # Detailed model references and integration summaries
-├── notebooks/                   # Jupyter notebooks for EDA
+├── docs/
+│   ├── assets/                  # 8K DOM trees, PCA/UMAP graphs, Feature drift maps
+│   └── reports/                 # Advanced adaptation logs, LaTeX papers
+├── experiments/                 # Saved model weights (.pkl, .h5, .pt) and results
 ├── scripts/
-│   └── setup_benchmark.py       # Executable initialization scripts
-│
+│   └── experiments/             # Heavy scripts for incremental learning, visualization, retrainings
 ├── src/                         # Core source code package
 │   ├── evaluation/              # Metrics and visualization generators
-│   ├── features/                # Feature processors (TF-IDF, Multimodal, Sequential)
-│   ├── models/                  # Model architecture implementations
+│   ├── features/                # Feature processors (TF-IDF, Structural, Sequential)
+│   ├── models/                  # Model architecture implementations (RF, XGB, CNNs)
+│   ├── tuning/                  # Optuna optimization
 │   ├── utils/                   # Loggers and config loaders
 │   └── pipeline.py              # Master training and evaluation pipeline
-│
-└── tests/                       # Unit tests for factory, features, and evaluation
+└── tests/                       # Unit tests
 ```
 
 ---
@@ -134,15 +131,6 @@ After running the global evaluator, the following are written to `reports/compar
 | `roc_curves.png` | Overlaid ROC curves for all models |
 | `confusion_matrices.png` | Grid plot of all confusion matrices |
 | `metrics_heatmap.png` | Heatmap of Accuracy, Precision, Recall, and F1-Score |
-
----
-
-## Testing
-
-Run the full test suite to verify pipeline integrity:
-```bash
-pytest tests/ -v
-```
 
 ---
 
