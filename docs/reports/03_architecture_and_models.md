@@ -242,8 +242,9 @@ This document provides a comprehensive reference for all five models in the benc
 | **URL RF** | Traditional ML | scikit-learn | URL manual features (11D) | `UrlProcessor` | ✓ Implemented |
 | **Structural DNN** | Deep Learning | Keras | Structural features (75D) | `StructuralProcessor` | ✓ Baseline |
 | **Structural RF** | Traditional ML | scikit-learn | Structural features (75D) | `StructuralProcessor` | ✓ Champion Static |
-| **Structural GB** | Traditional ML | scikit-learn | Structural features (75D) | `StructuralProcessor` | ✓ Implemented |
-| **Structural XGB** | Traditional ML | xgboost | Structural features (75D) | `StructuralProcessor` | ✓ Champion Dynamic |
+| **Structural XGB** | Traditional ML | xgboost | Structural features (75D) | `StructuralProcessor` | ✓ Early Fusion |
+| **Structural Stacking** | Ensemble ML | scikit-learn | Structural features (75D) | `StructuralProcessor` | ✓ Late Fusion |
+| **Mid-Fusion XGBoost** | Ensemble ML | xgboost | Structural features (75D) | `StructuralProcessor` | ✓ Champion Zero-Shot |
 
 ## Model Details
 
@@ -312,16 +313,19 @@ This document provides a comprehensive reference for all five models in the benc
 - **Zero-Shot Resilience**: **Highest** (68.6% True OOD Recall)
 - **Speed**: Fast | **Memory**: Medium | **Explainability**: Very High (SHAP)
 
-### 7. Structural XGB (CHAMPION DYNAMIC)
-- **Purpose**: Incremental learning champion for real-time adaptation
-- **Implementation**: Extreme Gradient Boosting with rolling updates
-- **Feature File**: `src/features/structural.py`
-- **Model File**: `src/models/structural_xgb.py`
+### 7. Structural XGB (Early Fusion)
+- **Purpose**: Fast gradient boosting baseline
+- **Implementation**: Extreme Gradient Boosting directly on raw features
 - **Config Key**: `structural_xgb`
-- **Training Data**: 25 Numerical Invariants + 50 TF-IDF Tag Sequences
-- **Architecture**: Boosted trees (200 estimators, depth 5)
-- **Incremental Accuracy**: **94.1%** on streaming zero-day mix
-- **Speed**: Fast | **Memory**: Low | **Explainability**: Very High (SHAP)
+- **Zero-Shot Resilience**: ~77.2%
+
+### 8. Mid-Fusion XGBoost (CHAMPION ZERO-SHOT)
+- **Purpose**: Ultimate OOD generalization using deep feature-weighted stacking
+- **Implementation**: Passthrough Stacking with XGBoost Meta-Learner and isolated URL/HTML experts.
+- **Config Key**: `mid_fusion_xgb`
+- **Training Data**: Raw features + Expert probabilities
+- **Zero-Shot Resilience**: **Highest** (79.32% Accuracy on 40,000 unseen domains)
+- **Speed**: Very Fast (using `lxml` parser optimization) | **Explainability**: High
 
 ## Configuration
 

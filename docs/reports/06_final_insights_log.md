@@ -41,3 +41,7 @@ When evaluating the state-of-the-art Deep Learning NLP models (such as WebPhish 
 ## 7. The Resilience vs. Accuracy Trade-off (The Core Thesis)
 To improve zero-shot generalization (resilience), we could drop highly "drifted" features like `is_https`. However, doing so artificially cripples the model's absolute maximum accuracy when it eventually encounters the modern internet.
 *   **Ultimate Conclusion:** It is a strict mathematical trade-off. **Incremental Learning** is the only architecture that bypasses this trade-off. It allows us to keep *all* features (maximizing the accuracy ceiling) while continuously updating the decision boundary with streaming data (maximizing zero-day resilience without catastrophic forgetting).
+
+## 8. The Mid-Fusion (Passthrough Stacking) Breakthrough
+When attempting to fuse URL and HTML insights, Late Fusion (simple voting) failed due to "Expert Overconfidence" on unseen domains. 
+*   **Insight:** By using **Passthrough Stacking** (conceptually Mid-Fusion), we passed the raw original features alongside the expert probabilities into the final XGBoost Meta-Learner. This allowed the overarching tree to learn complex context (e.g., "Ignore the URL expert if the raw HTML shows 0 iframes"). This single architectural change pushed zero-shot generalization on the 40k PhreshPhish dataset to a peak of **79.32%**, completely dwarfing the Deep Learning NLP baseline.
