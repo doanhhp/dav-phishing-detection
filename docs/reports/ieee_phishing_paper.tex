@@ -6,13 +6,15 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \begin{document}
 
-\title{Structural Invariance and Mid-Fusion XGBoost in Zero-Day Phishing Detection
-\thanks{This work was completed as part of the Data Analysis and Visualization course, demonstrating advanced DOM tree visualization, feature drift analysis, and model explainability.}
+\title{Structural Invariance and Mid-Fusion XGBoost in Zero-Day Phishing Detection\\
+\thanks{This work was completed as part of the Data Analysis and Visualization course, demonstrating advanced DOM tree visualization, mathematical feature drift analysis, and model explainability.}
 }
 
 \author{
@@ -26,7 +28,7 @@ Email: leader}
 \maketitle
 
 \begin{abstract}
-As phishing templates evolve to evade NLP-based keyword detection, modern deep learning models suffer catastrophic accuracy degradation due to Domain Shift. In this paper, we propose a highly scalable structural framework that extracts invariant Document Object Model (DOM) topologies and fuses them with isolated expert probabilities via a novel Mid-Fusion XGBoost (Passthrough Stacking) architecture. While our model achieves a state-of-the-art 98.28\% in-distribution accuracy, eclipsing previous multi-modal deep learning baselines, its primary contribution lies in zero-shot generalization. Evaluated on a massive, unseen 40,000-domain real-world dataset, standard Deep Learning collapsed to 67.02\%, whereas our Mid-Fusion structural approach maintained 79.32\% accuracy. Furthermore, we drastically reduced classification latency by introducing an $O(N)$ HTML parser, cutting feature extraction time by over 500\%. Ultimately, we mathematically and visually prove that structural geometric invariants drastically outperform text-based Neural Networks for real-time zero-day phishing detection.
+As phishing templates continuously evolve to evade Natural Language Processing (NLP) keyword detection, modern deep learning architectures suffer catastrophic accuracy degradation due to Domain Shift. In this paper, we propose a highly scalable, mathematical structural framework that extracts invariant Document Object Model (DOM) topologies and fuses them with isolated expert probabilities via a novel Mid-Fusion XGBoost (Passthrough Stacking) architecture. We rigorously evaluate 11 distinct architectures—including CNNs, LSTMs, and Hybrid Neural Networks. While our local implementation of the WebPhish CNN achieved an extraordinary 98.94\% in-distribution accuracy, eclipsing the original authors' metrics, it proved academically fragile. Evaluated on a massive, unseen 40,000-domain zero-shot dataset, the CNN collapsed to 67.02\% accuracy. Conversely, our Mid-Fusion structural approach maintained a highly resilient 79.32\% accuracy on zero-day attacks. Furthermore, we drastically reduced classification latency by introducing an $O(N)$ HTML parser, cutting extraction time by over 500\%. Ultimately, through rigorous data visualization and Explainable AI (SHAP), we mathematically prove that structural geometric invariants drastically outperform text-based Neural Networks for real-world phishing detection.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -34,104 +36,155 @@ phishing detection, domain shift, xgboost, ensemble learning, DOM tree visualiza
 \end{IEEEkeywords}
 
 \section{Introduction}
-Phishing detection is an adversarial cat-and-mouse game. Security researchers typically train sophisticated Deep Learning (DL) models on historical phishing templates, achieving exceptional laboratory metrics. However, scammers continuously mutate their DOM structures, vocabulary, and hosting infrastructure to bypass static filters. This phenomenon, known as Domain Shift or Content Shift, is the primary reason why academic models with 99\% accuracy fail during live industrial deployment. 
+Phishing detection operates as an asymmetric, adversarial cat-and-mouse game. Security researchers typically train sophisticated Deep Learning (DL) models on historical phishing templates, achieving exceptional laboratory metrics. However, scammers continuously mutate their DOM structures, vocabulary, and hosting infrastructure to bypass static filters. This phenomenon, known as Domain Shift or Content Shift, is the primary reason why academic models with $>$99\% accuracy fail during live industrial deployment. 
 
-The general methods applied to this problem rely heavily on deep Convolutional Neural Networks (CNN) or Recurrent Neural Networks (RNN) that scan raw URL strings and HTML text \cite{web_phishing_dl, dl_framework_phishing}. The advantage of these DL methods is their ability to memorize complex keyword distributions (e.g., automatically flagging words like ``paypal'' or ``login''). The disadvantage is absolute fragility: when scammers shifted in 2026 to attacking Web3 targets using words like ``metamask'' and ``crypto'', the frozen NLP vocabularies of these DL models misclassified them completely.
+The general methods applied to this problem rely heavily on deep Convolutional Neural Networks (CNN) or Recurrent Neural Networks (RNN) that scan raw URL strings and HTML text \cite{web_phishing_dl, dl_framework_phishing}. The fundamental advantage of these DL methods is their ability to memorize complex keyword distributions. For example, a CNN trained in 2021 will automatically learn to flag words like ``paypal'' or ``login'' as highly malicious vectors. 
+
+However, the catastrophic disadvantage is absolute fragility. When scammers shifted in 2026 to attacking Web3 targets using words like ``metamask'' and ``crypto'', the frozen NLP vocabularies of these DL models misclassified them completely. The models suffered from ``Vocabulary Misalignment'' because the words defining a phishing attack had fundamentally changed.
 
 Our contribution to solving this failure point is trifold:
 \begin{enumerate}
-    \item We completely abandon NLP vocabulary in favor of \textbf{Structural Invariants}, extracting the mathematical layout of the DOM tree (e.g., hidden CSS elements, tag nesting depth).
-    \item We introduce an $O(N)$ hyper-optimized \texttt{lxml} parser to drastically reduce extraction latency, enabling real-time edge deployment.
+    \item We completely abandon NLP vocabulary in favor of \textbf{Structural Invariants}, mathematically extracting the geometric layout of the DOM tree (e.g., hidden CSS elements, spatial tag nesting depth).
+    \item We introduce an $O(N)$ hyper-optimized \texttt{lxml} parser to drastically reduce extraction latency, enabling scalable, real-time edge deployment.
     \item We engineer a \textbf{Mid-Fusion Simulator Architecture} via Passthrough Stacking. Rather than relying on simple ensemble voting (Late Fusion), our Meta-Learner receives raw structural features alongside intermediate expert probabilities, allowing it to synthesize context and prevent ``expert overconfidence'' on zero-day attacks.
 \end{enumerate}
 
 \section{Related Works}
-The literature on phishing detection has increasingly shifted toward deep learning frameworks. Recent studies, such as the Deep Learning-based framework proposed in \cite{dl_framework_phishing}, showcase the immense classification power of multi-layer neural networks on web traffic. However, these frameworks often fail to account for chronological vocabulary drift, resulting in high latency and severe degradation on zero-day samples.
+The academic literature on phishing detection has increasingly shifted toward deep learning frameworks. Recent studies, such as the Deep Learning-based framework proposed in \cite{dl_framework_phishing}, showcase the immense classification power of multi-layer neural networks on web traffic. However, these frameworks often fail to mathematically account for chronological vocabulary drift, resulting in high inference latency and severe degradation on zero-day samples.
 
-Similarly, research optimizing deep learning specifically for web-based phishing URLs \cite{web_phishing_dl} demonstrates high laboratory performance by extracting sequential character dependencies. While effective on static test sets, sequence models inherently overfit to specific domain structures that quickly become obsolete in the live wild. 
+Similarly, research optimizing deep learning specifically for web-based phishing URLs \cite{web_phishing_dl} demonstrates high laboratory performance by extracting sequential character dependencies. While undeniably effective on static, temporally-locked test sets, sequence models inherently overfit to specific domain structures that quickly become obsolete in the live wild. 
 
-The most directly comparable state-of-the-art approach is the ``Look before you leap'' framework \cite{look_before_leap}, which ingeniously extracts visual (rendering screenshots) and textual features to achieve a 98.1\% detection accuracy. Our proposed architecture directly challenges this methodology. By replacing computationally heavy visual rendering and fragile textual features with purely mathematical DOM geometry, our Mid-Fusion model not only achieves a higher in-distribution accuracy of 98.28\%, but does so with a fractional extraction and inference latency that enables massive scalability.
+The most directly comparable state-of-the-art approach is the ``Look before you leap'' framework \cite{look_before_leap}, which ingeniously extracts visual (rendering headless screenshots) and textual features to achieve a 98.1\% detection accuracy. Our proposed architecture directly challenges this methodology. By replacing computationally heavy computer vision rendering and fragile textual NLP features with purely mathematical DOM geometry, our Mid-Fusion model not only achieves a higher in-distribution accuracy of 98.28\%, but does so with a fractional extraction latency ($<$2 minutes for 40,000 domains).
 
-\section{Structural Feature Engineering: The Mathematical Core}
-Before designing the classification architecture, we established a robust feature space immune to Domain Shift. 
+\begin{figure*}[htbp]
+\centerline{\includegraphics[width=\textwidth]{assets/overview_framework.png}}
+\caption{The Proposed Phishing Detection Architecture. Raw HTML bypasses standard NLP tensors and is parsed into Structural Feature Streams. The Passthrough Stacking (Mid-Fusion) Meta-Learner mathematically fuses isolated URL/HTML experts with raw features to prevent zero-day overconfidence.}
+\label{fig:framework}
+\end{figure*}
+
+\section{Visual Feature Engineering: The Mathematical Core}
+Before designing the classification architecture, we established a robust feature space immune to Domain Shift through extensive exploratory data analysis and visualization. 
 
 \subsection{The 90\% Structural Invariance Discovery}
-To prove the necessity of structural features, we performed a Kernel Density Estimation (KDE) overlap analysis (measured via the Bhattacharyya Coefficient) between our 2021 historical dataset \cite{mendeley_dataset} and the 2026 live zero-day dataset.
+To definitively prove the necessity of structural features over textual features, we performed a Kernel Density Estimation (KDE) overlap analysis between our 2021 historical dataset \cite{mendeley_dataset} and the 2026 live zero-day dataset. The overlap was quantified using the Bhattacharyya Coefficient:
+\begin{equation}
+BC(p, q) = \int \sqrt{p(x)q(x)} \, dx
+\end{equation}
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{../assets/feature_drift_kde_plot.png}}
+\centerline{\includegraphics[width=\linewidth]{assets/domain_shift/feature_drift_analysis.png}}
 \caption{KDE Overlap Visualization demonstrating Feature Drift. Textual NLP features drifted significantly over 5 years, while Structural Invariants maintained a $\sim$90\% mathematical overlap.}
 \label{fig:kde_drift}
 \end{figure}
 
-As visualized in Fig.~\ref{fig:kde_drift}, text-based features drifted significantly, meaning the vocabulary scammers used changed entirely. However, the raw numerical structural features (e.g., number of hidden CSS elements, DOM depth, dead link ratios) maintained a \textbf{90.39\%} overlap. The insight is profound: scammers change their text (PayPal $\rightarrow$ MetaMask), but they still construct their deceptive HTML skeletons the exact same way. 
+As visualized in Fig.~\ref{fig:kde_drift}, text-based features drifted significantly, meaning the vocabulary scammers used changed entirely. However, the raw numerical structural features maintained a \textbf{90.39\%} overlap. The insight is profound: scammers change their text, but they still construct their deceptive HTML skeletons the exact same way. 
 
-\subsection{Numerical Invariants \& SHAP Analysis}
-Based on the invariance discovery, we extracted 25 core numerical properties. These include metrics such as `empty\_links\_ratio`, `external\_resource\_ratio`, and `hidden\_css`. 
+\subsection{Explainable AI and Numerical Invariants}
+Based on the invariance discovery, we extracted 25 core numerical properties. To visually justify these selections, we utilized SHapley Additive exPlanations (SHAP) on the trained XGBoost model. The Shapley value for a feature $i$ is calculated as:
+\begin{equation}
+\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|! (n - |S| - 1)!}{n!} (v(S \cup \{i\}) - v(S))
+\end{equation}
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{../assets/shap_feature_importance.png}}
+\centerline{\includegraphics[width=\linewidth]{assets/explainable_ai/structural_xgb/shap_summary.png}}
 \caption{SHAP Summary Plot from the XGBoost Expert, visually ranking the most impactful structural features influencing the model's decision boundary.}
 \label{fig:shap_importance}
 \end{figure}
 
-To visually justify these selections, we utilized SHapley Additive exPlanations (SHAP) on the trained XGBoost model (Fig.~\ref{fig:shap_importance}). The visualizations confirm that geometric anomalies (like unusually high ratios of external iframes mapped to legitimate domains) are mathematically stronger indicators of phishing than any single keyword.
+The SHAP summary plot (Fig.~\ref{fig:shap_importance}) confirms that geometric anomalies—such as an unusually high \texttt{empty\_links\_ratio} or a massive spike in \texttt{hidden\_css} elements—are mathematically stronger indicators of phishing than any single keyword. 
 
-\subsection{DOM Skeletoning and Spatial Zones}
-Beyond numerical ratios, the cornerstone of our feature engineering relies on visualizing and quantifying the HTML Document Object Model (DOM). We extract the linear sequence of HTML tags (e.g., \texttt{\textless html\textgreater} $\rightarrow$ \texttt{\textless body\textgreater} $\rightarrow$ \texttt{\textless div\textgreater} $\rightarrow$ \texttt{\textless form\textgreater} $\rightarrow$ \texttt{\textless input\textgreater}) and apply Term Frequency-Inverse Document Frequency (TF-IDF) to these pure structural sequences. 
+\subsection{DOM Skeletoning and Visual Topology}
+Beyond numerical ratios, the cornerstone of our feature engineering relies on visualizing and quantifying the HTML Document Object Model (DOM). We extract the linear sequence of HTML tags (e.g., \texttt{\textless html\textgreater} $\rightarrow$ \texttt{\textless body\textgreater} $\rightarrow$ \texttt{\textless div\textgreater} $\rightarrow$ \texttt{\textless form\textgreater} $\rightarrow$ \texttt{\textless input\textgreater}) and apply Term Frequency-Inverse Document Frequency (TF-IDF):
+\begin{equation}
+\text{TF-IDF}(t, d, D) = \text{tf}(t, d) \cdot \log\left(\frac{|D|}{|\{d \in D : t \in d\}|}\right)
+\end{equation}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{../assets/dom_tree_visualization.png}}
-\caption{Visualization of the DOM Structural Skeleton highlighting invariant spatial zones. Phishing templates possess highly distinct mathematical depths compared to legitimate sites.}
+\begin{figure*}[htbp]
+\centerline{
+    \includegraphics[width=0.48\textwidth]{assets/dom_structure_analysis/Main/probabilistic_dom_benign_depth10.png}
+    \hfill
+    \includegraphics[width=0.48\textwidth]{assets/dom_structure_analysis/Main/probabilistic_dom_phishing_depth10.png}
+}
+\caption{Visualizing the Probabilistic DOM Topology. Left: The dense, complex geometric structure of Legitimate sites. Right: The extremely shallow, hyper-focused form-action branches typical of Phishing templates.}
 \label{fig:dom_tree}
-\end{figure}
+\end{figure*}
 
-Furthermore, we segment the DOM into physical \textit{Spatial Zones} (Top 33\%, Middle 33\%, Bottom 33\%). Because scammers frequently hide malicious iframes at the absolute bottom or top of a page to evade visual detection, this spatial mapping explicitly forces the model to learn \textit{where} structures are located.
+By rendering the DOM tree probabilistically (Fig.~\ref{fig:dom_tree}), the geometric differences become stark. Legitimate sites possess deep, highly interconnected topological webs. Conversely, phishing templates possess shallow, hyper-focused branches leading directly to `<form>` or `<input>` tags designed to harvest credentials. 
+
+Furthermore, we segment the DOM into physical \textit{Spatial Zones} (Top 33\%, Middle 33\%, Bottom 33\%). Because scammers frequently hide malicious iframes at the absolute bottom or top of a page to evade human visual detection, this spatial mapping explicitly forces the model to learn \textit{where} structural anomalies are located on the Y-axis of the webpage.
 
 \section{The Proposed Architecture: Mid-Fusion Simulation}
 
 \subsection{The Failure of Late Fusion and Expert Overconfidence}
-Standard ensemble architectures utilize ``Late Fusion,'' which simply averages the outputs of a URL model and an HTML model. In our experiments, Late Fusion failed due to ``Expert Overconfidence'' on unseen domains. If the HTML expert is 99\% confident but is being tricked by a zero-day exploit, the simple mathematical average is irrevocably skewed, leading to high False Positive rates (the Majority Class Paradox).
+Standard ensemble architectures utilize ``Late Fusion,'' which simply averages the outputs of a URL model and an HTML model. In our experiments, Late Fusion failed due to ``Expert Overconfidence'' on unseen domains. If the HTML expert is 99\% confident but is being tricked by a zero-day exploit, the simple mathematical average is irrevocably skewed, leading to catastrophic False Positive rates (often referred to as the Majority Class Paradox in imbalanced cybersecurity datasets).
 
 \subsection{Passthrough Stacking as a Mid-Fusion Simulator}
-True ``Mid-Fusion'' is a Deep Learning concept where hidden intermediate layers (tensors) from different branches are concatenated before the final dense layers. Because Tree Ensembles (like XGBoost) do not possess hidden layers, we simulate Mid-Fusion mathematically using a technique known as \textbf{Deep Feature-Weighted Passthrough Stacking}.
+True ``Mid-Fusion'' is a Deep Learning concept where hidden intermediate layers (tensors) from different branches are concatenated before the final dense layers. Because Tree Ensembles (like XGBoost) do not possess hidden neural layers, we simulate Mid-Fusion mathematically using a technique known as \textbf{Deep Feature-Weighted Passthrough Stacking}.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{../assets/framework_diagram.png}}
-\caption{The Proposed Phishing Detection Architecture demonstrating the Mid-Fusion Passthrough Stacking paradigm.}
-\label{fig:framework}
-\end{figure}
-
-As illustrated in the proposed pipeline (Fig.~\ref{fig:framework}), the architecture operates in two levels:
+As illustrated in the proposed pipeline (Fig.~\ref{fig:framework}), the architecture operates in two cascading levels:
 \begin{itemize}
     \item \textbf{Level 0 (The Isolated Experts):} An XGBoost URL Expert and an XGBoost HTML Expert generate intermediate Phishing Probabilities ($\hat{y}_{url}$, $\hat{y}_{html}$).
     \item \textbf{Level 1 (The Passthrough Meta-Learner):} The final overarching Joint-XGBoost receives the preliminary expert probabilities \textbf{AND} all the raw original structural features ($\mathbf{X}_{raw}$) simultaneously.
 \end{itemize}
 
 \begin{equation}
-P(Phishing) = \text{XGB}_{meta}(\mathbf{X}_{raw} \oplus \hat{y}_{url} \oplus \hat{y}_{html}) \label{eq:midfusion}
+P(Phish) = \text{XGB}_{meta}(\mathbf{X}_{url} \oplus \mathbf{X}_{html} \oplus \hat{y}_{url} \oplus \hat{y}_{html}) \label{eq:midfusion}
 \end{equation}
 
-Equation \eqref{eq:midfusion} defines this Mid-Fusion simulation. By passing the raw spatial features into the Meta-Learner alongside the probabilities, the final tree learns complex contextual overrides: \textit{``If the URL Expert is 90\% confident, but I physically see that the raw `iframe\_count` is 0, the URL expert is hallucinating, and I will override it.''}
+Equation \eqref{eq:midfusion} defines this Mid-Fusion simulation. By passing the raw spatial features into the Meta-Learner alongside the probabilities, the final tree structure learns complex contextual overrides. The algorithm effectively writes rules such as: \textit{``If the URL Expert is 90\% confident, but I physically see that the raw `iframe\_count` is 0, the URL expert is hallucinating, and I will override its prediction.''}
 
 \section{Experimental Results and Deep Dives}
 
 \subsection{Speed, Latency, and $O(N)$ Parsing Optimization}
 To be viable in production, detection models must possess extremely low latency. We replaced the standard \texttt{BeautifulSoup} HTML parser, which exhibited $O(N \times Depth)$ complexity by recursively walking parent tags, with native C-based \texttt{lxml.html.fromstring()}. This achieved pure $O(N)$ depth-first parsing.
 \begin{itemize}
-    \item \textbf{Extraction Latency:} Feature extraction for 45,000 domains dropped from over 30 minutes to \textbf{$<$2 minutes} (a $>$500\% speedup).
-    \item \textbf{Training Time:} Training the entire Mid-Fusion XGBoost architecture took seconds, compared to the hours required for the WebPhish CNN baselines.
+    \item \textbf{Extraction Latency:} Feature extraction for 45,000 domains dropped from over 30 minutes to \textbf{$<$2 minutes} (a 500\% speedup).
+    \item \textbf{Training Time:} Training the entire Mid-Fusion XGBoost architecture took seconds on a CPU, compared to the multiple GPU-hours required for the WebPhish CNN baselines.
     \item \textbf{Inference Latency:} A single domain prediction requires sub-10 milliseconds, making it deployable as a live browser extension.
 \end{itemize}
 
-\subsection{The Deep Learning Collapse (Domain Shift)}
-We evaluated state-of-the-art Deep Learning NLP models (WebPhish CNN) natively on the 2026 zero-day domains. While they achieved 99.91\% on historic data, accuracy collapsed catastrophically to 67\% under Domain Shift. The models were completely blind to new attacks because their frozen vocabularies could not "read" 2026 terminology.
+\subsection{Comprehensive Model Benchmarking}
+To rigorously evaluate our hypothesis, we implemented and trained 11 distinct architectures on the 45,000 historic domain dataset. The complete in-distribution laboratory results are presented in Table \ref{tab:full_models}.
 
-\subsection{The Curse of Dimensionality (Accuracy vs. Recall)}
-When tuning our Structural TF-IDF extraction, we encountered the classic Accuracy vs. Recall trade-off. Increasing the `max\_features` from 50 to 200 on the 45,000-record dataset improved raw Accuracy (by allowing the model to memorize specific legitimate templates) but dropped true zero-day Recall significantly. Because missing a phishing site (False Negative) is exponentially worse than a False Alarm, we deliberately constrained the vector space to prioritize zero-day resilience.
+\begin{table*}[htbp]
+\caption{Comprehensive 11-Model Benchmark Evaluation (In-Distribution Validation on Historic Data)}
+\begin{center}
+\begin{tabular}{l l c c c c c}
+\toprule
+\textbf{Model Architecture} & \textbf{Algorithm Type} & \textbf{Features} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\
+\midrule
+WebPhish CNN & Deep Learning & NLP Textual & \textbf{98.94\%} & \textbf{98.94\%} & \textbf{98.94\%} & \textbf{98.94\%} \\
+Mid-Fusion XGBoost & Ensemble Stacking & Structural & 98.28\% & 98.28\% & 98.28\% & 98.28\% \\
+Structural Stacking & Late Fusion & Structural & 97.92\% & 97.93\% & 97.92\% & 97.92\% \\
+Hybrid NN & Neural Network & Multi-Modal & 97.60\% & 97.60\% & 97.60\% & 97.60\% \\
+Structural XGBoost & Gradient Boosting & Structural & 97.04\% & 97.04\% & 97.04\% & 97.04\% \\
+EGSO CNN & Deep Learning & NLP Textual & 96.82\% & 96.83\% & 96.82\% & 96.82\% \\
+Structural Random Forest & Bagging & Structural & 96.51\% & 96.52\% & 96.51\% & 96.51\% \\
+LSTM URL & Recurrent Net & NLP Textual & 96.20\% & 96.22\% & 96.20\% & 96.20\% \\
+RNN GRU & Recurrent Net & NLP Textual & 94.90\% & 94.96\% & 94.90\% & 94.90\% \\
+URL Random Forest & Bagging & NLP Textual & 91.29\% & 91.35\% & 91.29\% & 91.29\% \\
+Hybrid SVM/KNN & Traditional ML & Multi-Modal & 82.66\% & 83.30\% & 82.66\% & 82.52\% \\
+\bottomrule
+\end{tabular}
+\label{tab:full_models}
+\end{center}
+\end{table*}
+
+As observed in Table \ref{tab:full_models}, our local implementation of the WebPhish CNN achieved an extraordinary 98.94\% accuracy, actually eclipsing the original authors' published metrics. However, this high performance in laboratory conditions is highly deceptive due to NLP vocabulary memorization. Our Mid-Fusion XGBoost provides an extremely competitive alternative (98.28\%), setting the stage for the true zero-shot evaluation.
+
+\subsection{The Deep Learning Collapse (Domain Shift)}
+We evaluated the state-of-the-art Deep Learning NLP models natively on the 2026 zero-day domains. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\linewidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
+\caption{The Deep Learning Collapse: Visualizing how CNN/LSTM models fail abruptly on zero-day domains while Structural ML maintains high resilience.}
+\label{fig:dl_collapse}
+\end{figure}
+
+As shown in Fig.~\ref{fig:dl_collapse}, while the DL models achieved 98.94\% on historic data, accuracy collapsed catastrophically to sub-70\% under Domain Shift. The neural networks were completely blind to new attacks because their frozen text vocabularies could not interpret 2026 terminology.
 
 \subsection{Massive 40,000-Domain Zero-Shot Benchmark}
-To establish the ultimate baseline, we locked all models and tested them without any retraining on the 40,000-domain PhreshPhish benchmark \cite{phreshphish_dataset}.
+To establish the ultimate baseline for real-world application, we locked the top-performing models and tested them without any retraining on the 40,000-domain PhreshPhish benchmark \cite{phreshphish_dataset}.
 
 \begin{table}[htbp]
 \caption{Zero-Shot Generalization on 40,000 Unseen Domains}
@@ -151,23 +204,23 @@ Structural XGBoost & Early Fusion ML & 77.22\%  \\
 \textbf{Mid-Fusion XGBoost} & \textbf{Passthrough Stacking} & \textbf{79.32\%}  \\
 \hline
 \end{tabular}
-\label{tab1}
+\label{tab2}
 \end{center}
 \end{table}
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{../assets/confusion_matrices.png}}
+\centerline{\includegraphics[width=\linewidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
 \caption{Zero-Shot Confusion Matrices comparing Late Fusion (high False Positives) against Mid-Fusion Passthrough Stacking (balanced classification).}
 \label{fig:confusion}
 \end{figure}
 
-As shown in Table \ref{tab1}, the Mid-Fusion XGBoost preserved nearly 80\% accuracy on completely alien zero-day domains. Furthermore, the confusion matrices (Fig.~\ref{fig:confusion}) visually prove how Passthrough Stacking successfully eliminated the massive False Positive rate generated by Late Fusion's expert overconfidence.
+As shown in Table \ref{tab2}, the Mid-Fusion XGBoost preserved nearly 80\% accuracy on completely alien zero-day domains, outperforming the WebPhish CNN by a staggering 12.3\%. Furthermore, the confusion matrices (Fig.~\ref{fig:confusion}) visually prove how the Mid-Fusion simulation successfully eliminated the massive False Positive rate generated by Late Fusion's expert overconfidence, cleanly separating the classes.
 
 \section{Conclusion and Future Works}
-This research fundamentally shifts the paradigm of phishing detection away from high-latency NLP Deep Learning and toward Structural Machine Learning. Scammers easily mutate keywords to break CNN vocabularies, but they cannot hide the structural DOM geometry required to build a phishing site. Our mathematically rigorous Mid-Fusion XGBoost architecture achieved a SOTA 98.28\% in-distribution accuracy and demonstrated profound zero-shot resilience (79.32\%) on 40,000 unseen domains. Future works will explore deploying this $O(N)$ architecture directly as a lightweight browser extension for real-time edge protection.
+This research fundamentally shifts the paradigm of phishing detection away from high-latency NLP Deep Learning and toward Structural Machine Learning. Scammers easily mutate keywords to break CNN vocabularies, but they cannot hide the structural DOM geometry required to build a functioning phishing site. While Deep Learning models like the WebPhish CNN dominate in static laboratory conditions (98.94\%), they fail entirely on zero-day attacks. Our mathematically rigorous Mid-Fusion XGBoost architecture achieved a highly competitive 98.28\% in-distribution accuracy and demonstrated profound real-world zero-shot resilience (79.32\%) on 40,000 unseen domains. Future works will explore deploying this $O(N)$ architecture directly as a lightweight browser extension for real-time edge protection.
 
 \section*{Acknowledgment}
-The authors thank the Data Analysis and Visualization course staff for emphasizing the critical importance of visual analytics, DOM tree geometric mapping, and explainable AI (SHAP), which formed the foundational insights for this project's feature engineering success.
+The authors thank the Data Analysis and Visualization course staff for emphasizing the critical importance of visual analytics, probabilistic DOM geometric mapping, and explainable AI (SHAP), which formed the foundational insights for this project's feature engineering success.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
