@@ -27,12 +27,12 @@ def main():
     y_train = df_train_url['Category'].map({'ham': 0, 'spam': 1}).values
 
     print("\n--- 2. Extracting Structural Features ---")
-    proc_path = "data/processed/structural_rf/processor.joblib"
-    struct_proc = joblib.load(proc_path)
+    from src.features.structural import StructuralProcessor
+    struct_proc = StructuralProcessor(config={})
     
     df_train_raw = df_train_url[['Data']].copy()
     df_train_raw['html'] = df_train_html['Data']
-    X_train = struct_proc.transform(df_train_raw)
+    X_train = struct_proc.fit_transform(df_train_raw)
 
     feature_names = struct_proc.get_feature_names()
     X_train_df = pd.DataFrame(X_train, columns=feature_names)
@@ -42,6 +42,9 @@ def main():
     xgb_model.fit(X_train, y_train)
 
     print("\n--- 4. Running SHAP Explainer ---")
+    # Clean feature names to prevent XGBoost ValueError
+    X_train_df.columns = [str(c).replace('[', '').replace(']', '').replace('<', '').replace('>', '') for c in X_train_df.columns]
+
     # Using TreeExplainer which is optimized for XGBoost
     explainer = shap.TreeExplainer(xgb_model.model)
     shap_values = explainer.shap_values(X_train_df)

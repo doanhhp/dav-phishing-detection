@@ -65,20 +65,20 @@ Before designing the classification architecture, we utilized extensive Explorat
 \subsection{The NLP Collapse: Visualizing Vocabulary Drift}
 To understand why Deep Learning models eventually fail, we generated wordclouds comparing the HTML text of historical phishing sites (from 2021) versus modern zero-day phishing sites (from 2026).
 
-\begin{figure}[htbp]
+\begin{figure*}[htbp]
 \centerline{
-    \includegraphics[width=0.48\linewidth]{assets/wordclouds/old_phish_html.png}
+    \includegraphics[width=0.48\textwidth]{assets/wordclouds/old_phish_html.png}
     \hfill
-    \includegraphics[width=0.48\linewidth]{assets/wordclouds/new_phish_html.png}
+    \includegraphics[width=0.48\textwidth]{assets/wordclouds/new_phish_html.png}
 }
 \caption{Wordclouds demonstrating severe vocabulary drift. Left: Historic 2021 phishing text focused heavily on traditional banking terms. Right: Modern 2026 phishing text shifted entirely to Web3, crypto, and modern application terminology.}
 \label{fig:wordclouds}
-\end{figure}
+\end{figure*}
 
 As visually proven in Fig.~\ref{fig:wordclouds}, the language scammers use drifted massively. An NLP Deep Learning model trained on the historic data memorized words like ``bank'' or ``paypal''. When exposed to the modern ``crypto'' templates, the model suffered from \textbf{Vocabulary Misalignment} and failed to detect the threat.
 
 \subsection{EDA and The Hollow Shell Hypothesis}
-Realizing that text was too volatile, we visualized the structural properties of the websites. During our initial EDA, we plotted the statistical distributions of features like \texttt{empty\_links\_ratio} and \texttt{hidden\_css} counts.
+Realizing that text was too volatile, we visualized the structural properties of the websites. During our initial EDA, we plotted the statistical distributions of features like the \texttt{Input-to-Content Ratio} and the \texttt{Dead Link Ratio}.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=\linewidth]{assets/insights/feature_outlier_boxplots.png}}
@@ -86,31 +86,29 @@ Realizing that text was too volatile, we visualized the structural properties of
 \label{fig:eda_boxplots}
 \end{figure}
 
-The boxplots (Fig.~\ref{fig:eda_boxplots}) revealed a massive anomaly: while phishing text perfectly mimics legitimate text (to trick human eyes), the physical HTML structure is wildly different. Legitimate sites are deeply interconnected ecosystems. Scammers, however, build \textbf{``Hollow Shells''}—fast, cheap templates with shallow DOM trees and excessive empty links (e.g., \texttt{\textless a href="\#"\textgreater}) because they only need the visual facade to work, not the underlying backend routing. This visual discovery provided the core inspiration to extract structural invariants.
+The boxplots (Fig.~\ref{fig:eda_boxplots}) revealed a massive anomaly: while phishing text perfectly mimics legitimate text (to trick human eyes), the physical HTML structure is wildly different. Legitimate corporate pages contain substantial paragraph \texttt{\textless p\textgreater} text alongside their input forms, maintaining a healthy \texttt{Input-to-Content Ratio}. Scammers, however, build \textbf{``Hollow Shells''}—cheap, fast templates that are often just a background image and a \texttt{\textless form\textgreater} box. Furthermore, legitimate sites have rich navigation, whereas scammers often leave these links ``dead'' (pointing to \texttt{\#}), resulting in a massive \texttt{Dead Link Ratio}. This visual discovery provided the core inspiration to extract structural invariants.
 
-\subsection{The 90\% Structural Invariance Proof}
-To mathematically prove our Hollow Shell Hypothesis, we performed a Kernel Density Estimation (KDE) overlap analysis (Bhattacharyya Coefficient) across the 5-year timeline.
+\subsection{Domain Shift and Mimicry (KDE Overlap)}
+To mathematically analyze how these distributions shift over time, we performed Kernel Density Estimation (KDE) overlap analysis.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=\linewidth]{assets/domain_shift/feature_drift_analysis.png}}
-\caption{KDE Overlap Visualization. Textual NLP features drifted significantly over 5 years, while Structural Invariants maintained a $\sim$90\% overlap.}
+\caption{KDE Overlap Visualization. In 2026, the distributions for structural features heavily overlapped as scammers adapted to mimic legitimate topologies.}
 \label{fig:kde_drift}
 \end{figure}
 
-As visualized in Fig.~\ref{fig:kde_drift}, text-based features drifted significantly. However, the raw numerical structural features (e.g., hidden CSS elements, DOM depth, dead link ratios) maintained a \textbf{90.39\%} overlap. Scammers change their text to match current trends, but they still construct their deceptive HTML skeletons the exact same way. 
+As visualized in Fig.~\ref{fig:kde_drift}, the structural distributions in 2021 possessed distinct, highly separated peaks between benign and phishing classes, making classification mathematically trivial. However, by 2026, the distributions heavily overlapped. Scammers had successfully mimicked the statistical profile of legitimate web architectures, closing the gap and confusing traditional Machine Learning algorithms. This massive overlap definitively proves that simple, static heuristics are no longer sufficient, requiring Deep Structural Skeletoning.
 
-\subsection{DOM Skeletoning and Explainable AI}
-Beyond simple numerical ratios, we visually mapped the HTML Document Object Model (DOM). We extracted the linear sequence of HTML tags (e.g., \texttt{\textless html\textgreater} $\rightarrow$ \texttt{\textless body\textgreater} $\rightarrow$ \texttt{\textless div\textgreater} $\rightarrow$ \texttt{\textless form\textgreater}) and applied Term Frequency-Inverse Document Frequency (TF-IDF). 
-
-To visually justify these feature selections to the XGBoost model, we utilized SHapley Additive exPlanations (SHAP) to map exactly which structures the model prioritized.
+\subsection{Explainable AI and The Simplicity Paradox}
+To visually justify our structural feature selections to the XGBoost model, we utilized SHapley Additive exPlanations (SHAP) to map exactly which structures the model prioritized.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=\linewidth]{assets/explainable_ai/structural_xgb/shap_summary.png}}
-\caption{SHAP Summary Plot visually ranking the most impactful structural features influencing the model's decision boundary.}
+\caption{SHAP Summary Plot visually ranking the most impactful structural features influencing the XGBoost decision boundary.}
 \label{fig:shap_importance}
 \end{figure}
 
-The SHAP plot (Fig.~\ref{fig:shap_importance}) mathematically confirms our visual EDA insights: geometric anomalies, such as an unusually high \texttt{empty\_links\_ratio}, are the primary drivers of accurate classification.
+The SHAP plot (Fig.~\ref{fig:shap_importance}) mathematically confirms our visual EDA insights. Features like \texttt{num\_inputs}, \texttt{script\_to\_body\_ratio}, and \texttt{css\_import\_ratio} dominate the top of the chart. High values for these specific structural elements push the model strongly toward predicting Phishing, establishing the ``Simplicity Paradox''—while legitimate DOM trees are deeply nested, phishing sites rely on simplified structural ratios to execute their attacks.
 
 \section{The Proposed Architecture: Mid-Fusion Simulation}
 
@@ -160,11 +158,11 @@ Our local implementation of the WebPhish CNN achieved an extraordinary 98.94\% a
 \subsection{The Deep Learning Collapse (Domain Shift)}
 To establish the ultimate baseline for real-world application, we locked the top-performing models and tested them without any retraining on the massive 40,000-domain PhreshPhish benchmark \cite{phreshphish_dataset}.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
+\begin{figure*}[htbp]
+\centerline{\includegraphics[width=0.8\textwidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
 \caption{The Deep Learning Collapse: Visualizing how CNN/LSTM models fail abruptly on zero-day domains while Structural ML maintains high resilience.}
 \label{fig:dl_collapse}
-\end{figure}
+\end{figure*}
 
 As shown in Fig.~\ref{fig:dl_collapse}, while the DL models achieved 98.94\% on historic data, accuracy collapsed catastrophically to 67.02\% under Domain Shift. The neural networks were completely blind to new attacks because their frozen text vocabularies could not interpret modern 2026 terminology.
 
@@ -190,11 +188,11 @@ Structural XGBoost & Early Fusion ML & 77.22\%  \\
 \end{center}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
+\begin{figure*}[htbp]
+\centerline{\includegraphics[width=0.8\textwidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
 \caption{Zero-Shot Confusion Matrices comparing Late Fusion (high False Positives) against Mid-Fusion Passthrough Stacking (balanced classification).}
 \label{fig:confusion}
-\end{figure}
+\end{figure*}
 
 As shown in Table \ref{tab2}, the Mid-Fusion XGBoost preserved nearly 80\% accuracy on completely alien zero-day domains. Furthermore, the confusion matrices (Fig.~\ref{fig:confusion}) visually prove how the Mid-Fusion simulation successfully eliminated the massive False Positive rate generated by Late Fusion's expert overconfidence.
 
