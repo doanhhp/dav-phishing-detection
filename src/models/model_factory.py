@@ -24,6 +24,7 @@ class ModelFactory:
         from .structural_rf import Structural_RF
         from .structural_gb import Structural_GB
         from .structural_xgb import Structural_XGB
+        from .structural_stacking import StructuralStacking
 
         models = {
             "hybrid_svm_knn": SVM_KNN,
@@ -36,6 +37,7 @@ class ModelFactory:
             "url_rf": Structural_RF,
             "structural_gb": Structural_GB,
             "structural_xgb": Structural_XGB,
+            "structural_stacking": StructuralStacking,
         }
 
         if model_name not in models:

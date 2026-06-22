@@ -109,9 +109,9 @@ class WebPhish_CNN(BaseModel):
 
     def save(self, path: str):
         """Save the model."""
-        self.model.save(path)
+        self.model.save(f"{path}.keras")
 
     def load(self, path: str):
         """Load a saved model."""
-        self.model = models.load_model(path)
+        self.model = models.load_model(f"{path}.keras")
         self.trained = True

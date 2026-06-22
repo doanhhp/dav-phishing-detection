@@ -34,8 +34,6 @@ class Structural_XGB(BaseModel):
     def save(self, path: str):
         joblib.dump(self.model, f"{path}.joblib")
         
-    @classmethod
-    def load(cls, path: str, config: dict):
-        instance = cls(config)
-        instance.model = joblib.load(f"{path}.joblib")
-        return instance
+    def load(self, path: str):
+        self.model = joblib.load(f"{path}.joblib")
+        self.trained = True

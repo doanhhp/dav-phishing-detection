@@ -16,20 +16,40 @@ logger = setup_logger(__name__)
 def load_data(url_path: str, html_path: str = None, samples: int = None):
     """Load and merge URL and HTML data."""
     logger.info(f"Loading URL data from {url_path}")
-    df_url = pd.read_excel(url_path)
+    if url_path.endswith('.parquet'):
+        df_url = pd.read_parquet(url_path)
+    else:
+        df_url = pd.read_excel(url_path)
     
     if samples:
         df_url = df_url.sample(min(samples, len(df_url)), random_state=42)
         
-    if html_path:
+    if html_path and html_path != url_path:
         logger.info(f"Loading HTML data from {html_path}")
-        df_html = pd.read_excel(html_path)
-        # Assuming they are aligned by index
-        df_url['html'] = df_html.loc[df_url.index, 'Data']
+        if html_path.endswith('.parquet'):
+            df_html = pd.read_parquet(html_path)
+        else:
+            df_html = pd.read_excel(html_path)
+        
+        # Check if the HTML file has 'html' or 'Data' column
+        if 'html' in df_html.columns:
+            df_url['html'] = df_html.loc[df_url.index, 'html']
+        else:
+            df_url['html'] = df_html.loc[df_url.index, 'Data']
+    elif 'html' not in df_url.columns and 'HTML' in df_url.columns:
+        # Some parquet datasets have 'HTML' instead of 'html'
+        df_url['html'] = df_url['HTML']
     
     # Map categories to labels
-    label_map = {'ham': 0, 'spam': 1}
-    y = df_url['Category'].map(label_map).values
+    if df_url['Category'].dtype == 'object' or df_url['Category'].dtype == 'string':
+        label_map = {'ham': 0, 'spam': 1, 'benign': 0, 'phishing': 1}
+        # Only map if it contains strings
+        if df_url['Category'].iloc[0] in label_map:
+            y = df_url['Category'].map(label_map).values
+        else:
+            y = df_url['Category'].values
+    else:
+        y = df_url['Category'].values
     
     return df_url, y
 
@@ -53,13 +73,13 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
     if not url_path:
         url_path = "data/raw/URL.xlsx"
     
-    if not html_path and model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn"]:
+    if not html_path and model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking"]:
         html_path = "data/raw/html.xlsx"
         
     df, y = load_data(url_path, html_path, samples=samples)
 
     # 3. Split data & CV Setup
-    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn"] else df['Data']
+    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking"] else df['Data']
     processor_name = model_config.get("processor") or model_config.get("feature_processor")
     
     if cv:

@@ -105,6 +105,17 @@ models:
     epochs: 15
     batch_size: 64
     learning_rate: 0.001
+  structural_stacking:
+    type: sklearn
+    processor: structural
+    url_xgb:
+      n_estimators: 200
+      max_depth: 6
+      learning_rate: 0.1
+    html_xgb:
+      n_estimators: 200
+      max_depth: 8
+      learning_rate: 0.1
 features:
   manual:
     n_features: 48
