@@ -145,6 +145,18 @@ As defined in Equation \eqref{eq:midfusion}, the final Meta-Learner receives the
 
 \section{Experimental Results and Deep Dives}
 
+\begin{figure*}[t]
+\centerline{\includegraphics[width=0.8\textwidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
+\caption{The Deep Learning Collapse: Visualizing how CNN/LSTM models fail abruptly on zero-day domains while Structural ML maintains high resilience.}
+\label{fig:dl_collapse}
+\end{figure*}
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=0.8\textwidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
+\caption{Zero-Shot Confusion Matrices comparing the WebPhish CNN (massive False Negatives due to NLP collapse) against Mid-Fusion Passthrough Stacking (balanced classification).}
+\label{fig:confusion}
+\end{figure*}
+
 \subsection{Comprehensive Model Benchmarking \& Latency}
 To rigorously evaluate our hypothesis, we implemented and trained 11 distinct architectures. Because real-time edge deployment is paramount, we also logged training time and inference latency (Table \ref{tab:full_models}).
 
@@ -177,18 +189,7 @@ Our local implementation of the WebPhish CNN achieved an extraordinary 98.94\% a
 \subsection{The Deep Learning Collapse (Domain Shift)}
 To establish the ultimate baseline for real-world application, we locked the top-performing models and tested them without any retraining on the massive 40,000-domain PhreshPhish benchmark \cite{phreshphish_dataset}.
 
-% Placing these double-column figures at the very top of the page prevents them from floating to the end of the document.
-\begin{figure*}[t]
-\centerline{\includegraphics[width=0.8\textwidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
-\caption{The Deep Learning Collapse: Visualizing how CNN/LSTM models fail abruptly on zero-day domains while Structural ML maintains high resilience.}
-\label{fig:dl_collapse}
-\end{figure*}
 
-\begin{figure*}[t]
-\centerline{\includegraphics[width=0.8\textwidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
-\caption{Zero-Shot Confusion Matrices comparing the WebPhish CNN (massive False Negatives due to NLP collapse) against Mid-Fusion Passthrough Stacking (balanced classification).}
-\label{fig:confusion}
-\end{figure*}
 
 As shown in Fig.~\ref{fig:dl_collapse}, while the DL models achieved 98.94\% on historic data, accuracy collapsed catastrophically to 67.02\% under Domain Shift. The neural networks were completely blind to new attacks because their frozen text vocabularies could not interpret modern 2026 terminology.
 
