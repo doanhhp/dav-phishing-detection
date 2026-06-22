@@ -58,29 +58,7 @@ The academic literature on phishing detection has increasingly shifted toward de
 \label{fig:framework}
 \end{figure*}
 
-\begin{table*}[t]
-\caption{Comprehensive 11-Model Benchmark Evaluation (In-Distribution Validation on Historic Data)}
-\begin{center}
-\begin{tabular}{l l l c c c c | c c}
-\toprule
-\textbf{Architecture} & \textbf{Algorithm Type} & \textbf{Features} & \textbf{Acc} & \textbf{Prec} & \textbf{Recall} & \textbf{F1} & \textbf{Training Time} & \textbf{Latency} \\
-\midrule
-WebPhish CNN & Deep Learning & NLP & \textbf{98.94\%} & \textbf{98.94\%} & \textbf{98.94\%} & \textbf{98.94\%} & 4+ GPU Hours & High ($>$100ms) \\
-Mid-Fusion XGBoost & Ensemble Stacking & Structural & 98.28\% & 98.28\% & 98.28\% & 98.28\% & \textbf{$<$2 CPU Mins} & \textbf{Low ($<$10ms)} \\
-Structural Stacking & Late Fusion & Structural & 97.92\% & 97.93\% & 97.92\% & 97.92\% & $<$2 CPU Mins & Low ($<$10ms) \\
-Hybrid NN & Neural Network & Multi-Modal & 97.60\% & 97.60\% & 97.60\% & 97.60\% & 2+ GPU Hours & High ($>$100ms) \\
-Structural XGBoost & Gradient Boosting & Structural & 97.04\% & 97.04\% & 97.04\% & 97.04\% & $<$1 CPU Min & Low ($<$10ms) \\
-EGSO CNN & Deep Learning & NLP & 96.82\% & 96.83\% & 96.82\% & 96.82\% & 4+ GPU Hours & High ($>$100ms) \\
-Structural Random Forest & Bagging & Structural & 96.51\% & 96.52\% & 96.51\% & 96.51\% & $<$1 CPU Min & Med ($\sim$20ms) \\
-LSTM URL & Recurrent Net & NLP & 96.20\% & 96.22\% & 96.20\% & 96.20\% & 3+ GPU Hours & High ($>$100ms) \\
-RNN GRU & Recurrent Net & NLP & 94.90\% & 94.96\% & 94.90\% & 94.90\% & 3+ GPU Hours & High ($>$100ms) \\
-URL Random Forest & Bagging & NLP & 91.29\% & 91.35\% & 91.29\% & 91.29\% & $<$1 CPU Min & Med ($\sim$20ms) \\
-Hybrid SVM/KNN & Traditional ML & Multi-Modal & 82.66\% & 83.30\% & 82.66\% & 82.52\% & 5+ CPU Mins & Med ($\sim$20ms) \\
-\bottomrule
-\end{tabular}
-\label{tab:full_models}
-\end{center}
-\end{table*}
+
 
 \section{Visual Feature Engineering: The Origin Story}
 
@@ -131,11 +109,7 @@ As shown in the violin plots (Fig.~\ref{fig:hollow_shell_violin}), legitimate we
 
 Furthermore, analyzing the specific tag frequencies (Fig.~\ref{fig:html_tags}) reveals divergent engineering priorities. Legitimate developers heavily utilize \texttt{\textless div\textgreater} and \texttt{\textless span\textgreater} tags to construct complex, styled layouts. Phishers bypass architectural styling and focus entirely on creating functioning \texttt{\textless form\textgreater} and \texttt{\textless input\textgreater} fields. This massive imbalance mathematically necessitates the extraction of tag-specific counts.
 
-\begin{figure*}[t]
-\centerline{\includegraphics[width=0.8\textwidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
-\caption{The Deep Learning Collapse: Visualizing how CNN/LSTM models fail abruptly on zero-day domains while Structural ML maintains high resilience.}
-\label{fig:dl_collapse}
-\end{figure*}
+
 
 \subsection{The 90\% Structural Invariance Proof}
 To mathematically prove our Hollow Shell Hypothesis, we performed a Kernel Density Estimation (KDE) overlap analysis (Bhattacharyya Coefficient) across the 5-year timeline.
@@ -159,11 +133,7 @@ To visually justify our structural feature selections to the XGBoost model, we u
 
 The SHAP plot (Fig.~\ref{fig:shap_importance}) mathematically confirms our visual EDA insights. Features like \texttt{num\_inputs}, \texttt{script\_to\_body\_ratio}, and \texttt{css\_import\_ratio} dominate the top of the chart. High values for these specific structural elements push the model strongly toward predicting Phishing, establishing the ``Simplicity Paradox''—while legitimate DOM trees are deeply nested, phishing sites rely on simplified structural ratios to execute their attacks.
 
-\begin{figure*}[t]
-\centerline{\includegraphics[width=0.8\textwidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
-\caption{Zero-Shot Confusion Matrices comparing the WebPhish CNN (massive False Negatives due to NLP collapse) against Mid-Fusion Passthrough Stacking (balanced classification).}
-\label{fig:confusion}
-\end{figure*}
+
 
 \section{The Proposed Architecture: Mid-Fusion Simulation}
 
@@ -184,14 +154,40 @@ As defined in Equation \eqref{eq:midfusion}, the final Meta-Learner receives the
 \subsection{Comprehensive Model Benchmarking \& Latency}
 To rigorously evaluate our hypothesis, we implemented and trained 11 distinct architectures. Because real-time edge deployment is paramount, we also logged training time and inference latency (Table \ref{tab:full_models}).
 
-
+\begin{table*}[t]
+\caption{Comprehensive 11-Model Benchmark Evaluation (In-Distribution Validation on Historic Data)}
+\begin{center}
+\begin{tabular}{l l l c c c c | c c}
+\toprule
+\textbf{Architecture} & \textbf{Algorithm Type} & \textbf{Features} & \textbf{Acc} & \textbf{Prec} & \textbf{Recall} & \textbf{F1} & \textbf{Training Time} & \textbf{Latency} \\
+\midrule
+WebPhish CNN & Deep Learning & NLP & \textbf{98.94\%} & \textbf{98.94\%} & \textbf{98.94\%} & \textbf{98.94\%} & 4+ GPU Hours & High ($>$100ms) \\
+Mid-Fusion XGBoost & Ensemble Stacking & Structural & 98.28\% & 98.28\% & 98.28\% & 98.28\% & \textbf{$<$2 CPU Mins} & \textbf{Low ($<$10ms)} \\
+Structural Stacking & Late Fusion & Structural & 97.92\% & 97.93\% & 97.92\% & 97.92\% & $<$2 CPU Mins & Low ($<$10ms) \\
+Hybrid NN & Neural Network & Multi-Modal & 97.60\% & 97.60\% & 97.60\% & 97.60\% & 2+ GPU Hours & High ($>$100ms) \\
+Structural XGBoost & Gradient Boosting & Structural & 97.04\% & 97.04\% & 97.04\% & 97.04\% & $<$1 CPU Min & Low ($<$10ms) \\
+EGSO CNN & Deep Learning & NLP & 96.82\% & 96.83\% & 96.82\% & 96.82\% & 4+ GPU Hours & High ($>$100ms) \\
+Structural Random Forest & Bagging & Structural & 96.51\% & 96.52\% & 96.51\% & 96.51\% & $<$1 CPU Min & Med ($\sim$20ms) \\
+LSTM URL & Recurrent Net & NLP & 96.20\% & 96.22\% & 96.20\% & 96.20\% & 3+ GPU Hours & High ($>$100ms) \\
+RNN GRU & Recurrent Net & NLP & 94.90\% & 94.96\% & 94.90\% & 94.90\% & 3+ GPU Hours & High ($>$100ms) \\
+URL Random Forest & Bagging & NLP & 91.29\% & 91.35\% & 91.29\% & 91.29\% & $<$1 CPU Min & Med ($\sim$20ms) \\
+Hybrid SVM/KNN & Traditional ML & Multi-Modal & 82.66\% & 83.30\% & 82.66\% & 82.52\% & 5+ CPU Mins & Med ($\sim$20ms) \\
+\bottomrule
+\end{tabular}
+\label{tab:full_models}
+\end{center}
+\end{table*}
 
 Our local implementation of the WebPhish CNN achieved an extraordinary 98.94\% accuracy, eclipsing the original authors' published metrics. However, this high performance requires massive GPU training time and exhibits high latency. Conversely, our Mid-Fusion XGBoost provides highly competitive accuracy (98.28\%) while training in under 2 minutes on a standard CPU, enabled by our hyper-optimized $O(N)$ \texttt{lxml} parser.
 
 \subsection{The Deep Learning Collapse (Domain Shift)}
 To establish the ultimate baseline for real-world application, we locked the top-performing models and tested them without any retraining on the massive 40,000-domain PhreshPhish benchmark \cite{phreshphish_dataset}.
 
-
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\linewidth]{assets/model_comparisons/dl_few_shot_comparison.png}}
+\caption{The Deep Learning Collapse: Visualizing how CNN/LSTM models fail abruptly on zero-day domains while Structural ML maintains high resilience.}
+\label{fig:dl_collapse}
+\end{figure}
 
 As shown in Fig.~\ref{fig:dl_collapse}, while the DL models achieved 98.94\% on historic data, accuracy collapsed catastrophically to 67.02\% under Domain Shift. The neural networks were completely blind to new attacks because their frozen text vocabularies could not interpret modern 2026 terminology.
 
@@ -216,6 +212,12 @@ Structural XGBoost & Early Fusion ML & 77.22\%  \\
 \label{tab2}
 \end{center}
 \end{table}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\linewidth]{assets/domain_shift/domain_shift_confusion_matrices.png}}
+\caption{Zero-Shot Confusion Matrices comparing the WebPhish CNN (massive False Negatives due to NLP collapse) against Mid-Fusion Passthrough Stacking (balanced classification).}
+\label{fig:confusion}
+\end{figure}
 
 As shown in Table \ref{tab2}, the Mid-Fusion XGBoost preserved nearly 80\% accuracy on completely alien zero-day domains. Furthermore, the confusion matrices (Fig.~\ref{fig:confusion}) visually prove how the Mid-Fusion simulation successfully eliminated the massive False Positive rate generated by Late Fusion's expert overconfidence.
 
