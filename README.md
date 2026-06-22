@@ -10,15 +10,13 @@ A comparative evaluation of eleven phishing detection methods, culminating in ro
 |---|---|---|
 | **Hybrid SVM+KNN** | Traditional ML | Manually engineered features |
 | **LSTM URL-Only** | Deep Learning | Raw character sequences of URLs |
-| **WebPhish CNN** | Deep Learning | State-of-the-art multi-modal CNN (99.03% in-distribution accuracy) |
+| **WebPhish CNN** | Deep Learning | State-of-the-art multi-modal CNN |
 | **EGSO-CNN (2025)** | Deep Learning | Optimized CNN utilizing both URL and HTML with TF-IDF |
 | **RNN-GRU** | Deep Learning | Sequential model for textual web data |
-| **Structural RF** | Tree Ensemble | Random Forest on 21 invariant structural features (Highly robust to OOD) |
-| **Structural XGB** | Gradient Boosting | XGBoost on structural features |
-| **Structural GB** | Gradient Boosting | Gradient Boosting on structural features |
-| **Structural DNN** | Deep Learning | Deep Neural Net trained on structural features |
-| **URL RF** | Tree Ensemble | Random Forest on URL-only structural features |
-| **Hybrid NN** | Deep Learning | Complex Neural Network combining structural and sequential data |
+| **Structural RF** | Tree Ensemble | Random Forest on structural features |
+| **Structural XGB** | Gradient Boosting | XGBoost on structural features (Unified/Early Fusion) |
+| **Structural Stacking** | Tree Ensemble | Late Fusion ensemble of URL and HTML experts |
+| **Mid-Fusion XGBoost** | Tree Ensemble | Deep Feature-Weighted Passthrough Stacking (Best Generalization) |
 
 ---
 

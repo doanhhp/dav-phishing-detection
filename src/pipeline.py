@@ -73,13 +73,13 @@ def run_experiment(model_name: str, config_path: str, samples: int = None, cv: i
     if not url_path:
         url_path = "data/raw/URL.xlsx"
     
-    if not html_path and model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking"]:
+    if not html_path and model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking", "mid_fusion_xgb"]:
         html_path = "data/raw/html.xlsx"
         
     df, y = load_data(url_path, html_path, samples=samples)
 
     # 3. Split data & CV Setup
-    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking"] else df['Data']
+    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking", "mid_fusion_xgb"] else df['Data']
     processor_name = model_config.get("processor") or model_config.get("feature_processor")
     
     if cv:

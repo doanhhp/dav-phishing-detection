@@ -116,6 +116,21 @@ models:
       n_estimators: 200
       max_depth: 8
       learning_rate: 0.1
+  mid_fusion_xgb:
+    type: sklearn
+    processor: structural
+    url_xgb:
+      n_estimators: 200
+      max_depth: 6
+      learning_rate: 0.1
+    html_xgb:
+      n_estimators: 200
+      max_depth: 8
+      learning_rate: 0.1
+    joint_xgb:
+      n_estimators: 300
+      max_depth: 6
+      learning_rate: 0.05
 features:
   manual:
     n_features: 48

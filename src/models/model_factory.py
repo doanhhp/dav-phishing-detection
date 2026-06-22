@@ -25,6 +25,7 @@ class ModelFactory:
         from .structural_gb import Structural_GB
         from .structural_xgb import Structural_XGB
         from .structural_stacking import StructuralStacking
+        from .mid_fusion_xgb import MidFusionXGB
 
         models = {
             "hybrid_svm_knn": SVM_KNN,
@@ -38,6 +39,7 @@ class ModelFactory:
             "structural_gb": Structural_GB,
             "structural_xgb": Structural_XGB,
             "structural_stacking": StructuralStacking,
+            "mid_fusion_xgb": MidFusionXGB,
         }
 
         if model_name not in models:

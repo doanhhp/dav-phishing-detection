@@ -108,22 +108,24 @@ class StructuralProcessor:
         
         # --- Advanced EDA & Positional Features ---
         try:
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(html, 'html.parser')
+            import lxml.html
+            tree = lxml.html.fromstring(html)
             
-            all_tags_list = list(soup.find_all(True))
+            all_tags_list = list(tree.iter())
             
-            max_depth = 0
-            for tag in all_tags_list:
-                depth = len(list(tag.parents))
-                if depth > max_depth:
-                    max_depth = depth
-            features.append(max_depth)
+            def get_max_depth(element, current_depth):
+                m_depth = current_depth
+                for child in element.iterchildren():
+                    if isinstance(child.tag, str):
+                        m_depth = max(m_depth, get_max_depth(child, current_depth + 1))
+                return m_depth
+                
+            features.append(get_max_depth(tree, 0))
             
-            all_tags = [tag.name for tag in all_tags_list]
+            all_tags = [tag.tag for tag in all_tags_list if isinstance(tag.tag, str)]
             features.append(len(set(all_tags)))
             
-            resources = soup.find_all(['img', 'script', 'link'])
+            resources = [t for t in all_tags_list if isinstance(t.tag, str) and t.tag in ['img', 'script', 'link']]
             if resources:
                 ext_res = 0
                 for tag in resources:
@@ -136,7 +138,7 @@ class StructuralProcessor:
                 
             # Form Action Discrepancy
             foreign_form = 0
-            for form in soup.find_all('form'):
+            for form in [t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'form']:
                 action = form.get('action', '')
                 if action and str(action).startswith('http'):
                     action_domain = urlparse(action).netloc.lower()
@@ -146,14 +148,14 @@ class StructuralProcessor:
             features.append(foreign_form)
             
             # --- Cloaking / Evasion Features ---
-            js_len = sum(len(str(t)) for t in soup.find_all('script'))
+            scripts = [t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'script']
+            js_len = sum(len(t.text_content()) for t in scripts if t.text_content())
             features.append(js_len / max(1, len(html))) # html_js_ratio
             
-            body_tag = soup.body
-            body_tag_count = len(body_tag.find_all(True)) if body_tag else 0
+            body_tag_count = len([t for t in all_tags_list if isinstance(t.tag, str) and t.tag != 'html' and t.tag != 'head'])
             features.append(body_tag_count) # body_tag_count
             
-            iframe_count = len(soup.find_all('iframe'))
+            iframe_count = len([t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'iframe'])
             features.append(iframe_count) # iframe_count
                 
         except Exception:
@@ -181,15 +183,19 @@ class StructuralProcessor:
     def _extract_xpath_sequence(self, html):
         """Extract sequence of XPath paths for all tags in the HTML (DOM Hierarchy)"""
         try:
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(html, 'html.parser')
-            paths = []
-            for tag in soup.find_all(True):
-                # Construct xpath: html/body/div/p
-                path_parts = [p.name for p in reversed(list(tag.parents)) if p.name] + [tag.name]
-                path_str = "/".join(path_parts)
-                paths.append(f"<{path_str}>")
-            return " ".join(paths)
+            import lxml.html
+            tree = lxml.html.fromstring(html)
+            
+            def build_paths(element, current_path):
+                paths = []
+                for child in element.iterchildren():
+                    if isinstance(child.tag, str):
+                        new_path = f"{current_path}/{child.tag}" if current_path else child.tag
+                        paths.append(f"<{new_path}>")
+                        paths.extend(build_paths(child, new_path))
+                return paths
+                
+            return " ".join(build_paths(tree, ""))
         except Exception:
             return ""
 

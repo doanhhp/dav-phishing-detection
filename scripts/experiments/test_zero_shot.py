@@ -26,7 +26,7 @@ def run_zero_shot(model_name, config_path, url_path, html_path):
     logger.info(f"Loading data from {url_path} and {html_path}")
     df, y = load_data(url_path, html_path)
     
-    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking"] else df['Data']
+    X = df[['Data', 'html']] if model_name in ["webphish_cnn", "egso_cnn", "structural_dnn", "structural_rf", "structural_gb", "structural_xgb", "hybrid_nn", "structural_stacking", "mid_fusion_xgb"] else df['Data']
     
     processor_name = model_config.get("processor") or model_config.get("feature_processor")
     
@@ -47,7 +47,7 @@ def run_zero_shot(model_name, config_path, url_path, html_path):
     logger.info(f"Loading saved model {model_name}")
     model = ModelFactory.create_model(model_name, model_config)
     
-    if model_name in ["structural_xgb", "structural_stacking"]:
+    if model_name in ["structural_xgb", "structural_stacking", "mid_fusion_xgb"]:
         model_load_path = os.path.join("experiments", model_name, "model")
     else:
         model_load_path = os.path.join("experiments", model_name, "model.h5")
