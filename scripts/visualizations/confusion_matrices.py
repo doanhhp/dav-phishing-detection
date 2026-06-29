@@ -43,10 +43,7 @@ def plot_domain_shift_matrices():
     
     plt.suptitle("The Danger of Domain Shift (Confusion Matrix Comparison)", fontsize=22, fontweight='bold', y=1.05)
     
-    # Add an arrow or text highlighting the massive FN rate
-    axes[0].text(0.5, 1.8, 'Massive False Negatives\n(NLP Vocabulary Collapse)', color='darkred', 
-                 fontsize=14, fontweight='bold', ha='center', va='center', 
-                 bbox=dict(facecolor='white', alpha=0.8, edgecolor='red', boxstyle='round,pad=0.5'))
+
                  
     plt.tight_layout()
     plt.savefig(os.path.join(out_dir, 'domain_shift_confusion_matrices.png'), dpi=200, bbox_inches='tight')

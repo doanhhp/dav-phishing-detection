@@ -26,6 +26,7 @@ class StructuralProcessor:
         self.zone3_tfidf = TfidfVectorizer(max_features=20, ngram_range=(1, 2), token_pattern=r'(?u)\b\w+\b')
         
         self.fitted = False
+        self.upper_bounds = None
 
     def _entropy(self, string):
         """Calculates the Shannon entropy of a string"""
@@ -37,20 +38,20 @@ class StructuralProcessor:
         """Extract numerical structural features from URL and HTML."""
         features = []
         html_lower = html.lower()
+        url_lower = url.lower()
+        parsed = urlparse(url if url.startswith('http') else f"http://{url}")
         
         # --- URL Features (Lexical) ---
-        features.append(len(url))
-        features.append(url.count('.'))
-        features.append(1 if str(url).lower().startswith('https') else 0)
-        features.append(sum(url.count(c) for c in ['-', '@', '?', '=', '%', '_']))
-        features.append(sum(c.isdigit() for c in url) / max(1, len(url)))
-        parsed = urlparse(url if url.startswith('http') else f"http://{url}")
-        features.append(max(0, len(domain.split('.')) - 2))
-        features.append(self._entropy(url) if url else 0)
-        features.append(parsed.path.count('/'))
-        login_keywords = ['login', 'signin', 'auth', 'secure', 'update', 'account', 'verify', 'webscr']
-        features.append(1 if any(kw in url.lower() for kw in login_keywords) else 0)
-        features.append(1 if '-' in domain else 0)
+        features.append(len(url))                                       # url_length
+        features.append(parsed.netloc.count('.'))                       # url_num_dots
+        features.append(1 if parsed.scheme == 'https' else 0)           # is_https
+        features.append(sum(1 for c in url if not c.isalnum()))         # url_num_special_chars
+        features.append(sum(c.isdigit() for c in url) / max(1, len(url))) # url_digit_ratio
+        features.append(len(parsed.netloc.split('.')) - 2 if len(parsed.netloc.split('.')) > 2 else 0) # url_num_subdomains
+        features.append(self._entropy(url) if url else 0)               # url_entropy
+        features.append(len(parsed.path.strip('/').split('/')) if parsed.path else 0) # url_path_depth
+        features.append(1 if 'login' in url_lower else 0)               # url_has_login
+        features.append(1 if '-' in parsed.netloc else 0)               # url_hyphen_domain
         
         # --- Brand Mimicry removed per user request ---
         
@@ -231,9 +232,13 @@ class StructuralProcessor:
         z2_features = self.zone2_tfidf.fit_transform(z2_seqs).toarray()
         z3_features = self.zone3_tfidf.fit_transform(z3_seqs).toarray()
         
+        num_array = np.array(num_features)
+        self.upper_bounds = np.percentile(num_array, 99, axis=0)
+        clipped_num_features = np.clip(num_array, a_min=None, a_max=self.upper_bounds)
+        
         # Combine all features
         combined_features = np.hstack((
-            np.array(num_features), 
+            clipped_num_features, 
             tfidf_features, 
             xpath_features,
             z1_features, z2_features, z3_features
@@ -277,8 +282,11 @@ class StructuralProcessor:
         z2_features = self.zone2_tfidf.transform(z2_seqs).toarray()
         z3_features = self.zone3_tfidf.transform(z3_seqs).toarray()
         
+        num_array = np.array(num_features)
+        clipped_num_features = np.clip(num_array, a_min=None, a_max=self.upper_bounds) if self.upper_bounds is not None else num_array
+        
         combined_features = np.hstack((
-            np.array(num_features), 
+            clipped_num_features, 
             tfidf_features, 
             xpath_features,
             z1_features, z2_features, z3_features

@@ -47,7 +47,7 @@ def run_zero_shot(model_name, config_path, url_path, html_path):
     logger.info(f"Loading saved model {model_name}")
     model = ModelFactory.create_model(model_name, model_config)
     
-    if model_name in ["structural_xgb", "structural_stacking", "mid_fusion_xgb"]:
+    if model_name in ["structural_xgb", "structural_stacking", "mid_fusion_xgb", "url_rf", "structural_rf"]:
         model_load_path = os.path.join("experiments", model_name, "model")
     else:
         model_load_path = os.path.join("experiments", model_name, "model.h5")
@@ -74,6 +74,8 @@ def run_zero_shot(model_name, config_path, url_path, html_path):
     
     logger.info(f"--- Results for {model_name} (Zero-Shot) ---")
     logger.info(f"Accuracy: {acc:.4f}")
+    logger.info(f"Precision: {prec:.4f}")
+    logger.info(f"Recall: {rec:.4f}")
     logger.info(f"F1-Score: {f1:.4f}")
     logger.info(f"ROC AUC: {roc:.4f}")
     logger.info(f"Inference Latency: {latency_ms:.4f} ms/sample")

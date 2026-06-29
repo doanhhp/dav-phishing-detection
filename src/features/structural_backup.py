@@ -17,6 +17,14 @@ class StructuralProcessor:
         self.scaler = StandardScaler()
         # Structural Skeletoning (DOM Tag NLP - Template Mining)
         self.tfidf = TfidfVectorizer(max_features=50, ngram_range=(2, 3), token_pattern=r'(?u)\b\w+\b')
+        # XPath N-Grams (DOM Hierarchy Sequences)
+        self.xpath_tfidf = TfidfVectorizer(max_features=25, ngram_range=(2, 3), token_pattern=r'(?u)\S+')
+        
+        # Spatial Zone TF-IDF (Top, Middle, Bottom)
+        self.zone1_tfidf = TfidfVectorizer(max_features=20, ngram_range=(1, 2), token_pattern=r'(?u)\b\w+\b')
+        self.zone2_tfidf = TfidfVectorizer(max_features=20, ngram_range=(1, 2), token_pattern=r'(?u)\b\w+\b')
+        self.zone3_tfidf = TfidfVectorizer(max_features=20, ngram_range=(1, 2), token_pattern=r'(?u)\b\w+\b')
+        
         self.fitted = False
 
     def _entropy(self, string):
@@ -98,22 +106,26 @@ class StructuralProcessor:
             brand_discrepancy = 1.0 - similarity
         features.append(brand_discrepancy)
         
-        # --- Advanced EDA Features ---
+        # --- Advanced EDA & Positional Features ---
         try:
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(html, 'html.parser')
+            import lxml.html
+            tree = lxml.html.fromstring(html)
             
-            max_depth = 0
-            for tag in soup.find_all(True):
-                depth = len(list(tag.parents))
-                if depth > max_depth:
-                    max_depth = depth
-            features.append(max_depth)
+            all_tags_list = list(tree.iter())
             
-            all_tags = [tag.name for tag in soup.find_all(True)]
+            def get_max_depth(element, current_depth):
+                m_depth = current_depth
+                for child in element.iterchildren():
+                    if isinstance(child.tag, str):
+                        m_depth = max(m_depth, get_max_depth(child, current_depth + 1))
+                return m_depth
+                
+            features.append(get_max_depth(tree, 0))
+            
+            all_tags = [tag.tag for tag in all_tags_list if isinstance(tag.tag, str)]
             features.append(len(set(all_tags)))
             
-            resources = soup.find_all(['img', 'script', 'link'])
+            resources = [t for t in all_tags_list if isinstance(t.tag, str) and t.tag in ['img', 'script', 'link']]
             if resources:
                 ext_res = 0
                 for tag in resources:
@@ -126,7 +138,7 @@ class StructuralProcessor:
                 
             # Form Action Discrepancy
             foreign_form = 0
-            for form in soup.find_all('form'):
+            for form in [t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'form']:
                 action = form.get('action', '')
                 if action and str(action).startswith('http'):
                     action_domain = urlparse(action).netloc.lower()
@@ -134,9 +146,20 @@ class StructuralProcessor:
                         foreign_form = 1
                         break
             features.append(foreign_form)
+            
+            # --- Cloaking / Evasion Features ---
+            scripts = [t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'script']
+            js_len = sum(len(t.text_content()) for t in scripts if t.text_content())
+            features.append(js_len / max(1, len(html))) # html_js_ratio
+            
+            body_tag_count = len([t for t in all_tags_list if isinstance(t.tag, str) and t.tag != 'html' and t.tag != 'head'])
+            features.append(body_tag_count) # body_tag_count
+            
+            iframe_count = len([t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'iframe'])
+            features.append(iframe_count) # iframe_count
                 
         except Exception:
-            features.extend([0, 0, 0, 0])
+            features.extend([0, 0, 0, 0, 0, 0, 0])
         
         return features
 
@@ -144,6 +167,37 @@ class StructuralProcessor:
         """Extract sequence of HTML tags for TF-IDF (Structural Skeletoning)"""
         tags = re.findall(r'<([a-zA-Z0-9]+)[^>]*>', str(html).lower())
         return " ".join(tags)
+
+    def _extract_spatial_zones(self, html):
+        """Extract tags and split them into 3 spatial zones (Top, Middle, Bottom)"""
+        tags = re.findall(r'<([a-zA-Z0-9]+)[^>]*>', str(html).lower())
+        if not tags:
+            return "", "", ""
+            
+        chunk_size = max(1, len(tags) // 3)
+        zone1 = " ".join(tags[:chunk_size])
+        zone2 = " ".join(tags[chunk_size:2*chunk_size])
+        zone3 = " ".join(tags[2*chunk_size:])
+        return zone1, zone2, zone3
+        
+    def _extract_xpath_sequence(self, html):
+        """Extract sequence of XPath paths for all tags in the HTML (DOM Hierarchy)"""
+        try:
+            import lxml.html
+            tree = lxml.html.fromstring(html)
+            
+            def build_paths(element, current_path):
+                paths = []
+                for child in element.iterchildren():
+                    if isinstance(child.tag, str):
+                        new_path = f"{current_path}/{child.tag}" if current_path else child.tag
+                        paths.append(f"<{new_path}>")
+                        paths.extend(build_paths(child, new_path))
+                return paths
+                
+            return " ".join(build_paths(tree, ""))
+        except Exception:
+            return ""
 
     def fit_transform(self, X, y=None):
         if not isinstance(X, pd.DataFrame):
@@ -155,16 +209,35 @@ class StructuralProcessor:
         # Extract numerical features
         num_features = []
         tag_sequences = []
+        xpath_sequences = []
+        z1_seqs, z2_seqs, z3_seqs = [], [], []
+        
         for u, h in zip(urls, htmls):
             domain = urlparse(u if u.startswith('http') else f"http://{u}").netloc
             num_features.append(self._extract_numerical_features(u, h, domain))
             tag_sequences.append(self._extract_tag_sequence(h))
+            xpath_sequences.append(self._extract_xpath_sequence(h))
             
-        # Fit and transform TF-IDF on tag sequences
+            z1, z2, z3 = self._extract_spatial_zones(h)
+            z1_seqs.append(z1)
+            z2_seqs.append(z2)
+            z3_seqs.append(z3)
+            
+        # Fit and transform TF-IDF on sequences
         tfidf_features = self.tfidf.fit_transform(tag_sequences).toarray()
+        xpath_features = self.xpath_tfidf.fit_transform(xpath_sequences).toarray()
         
-        # Combine numerical and TF-IDF features
-        combined_features = np.hstack((np.array(num_features), tfidf_features))
+        z1_features = self.zone1_tfidf.fit_transform(z1_seqs).toarray()
+        z2_features = self.zone2_tfidf.fit_transform(z2_seqs).toarray()
+        z3_features = self.zone3_tfidf.fit_transform(z3_seqs).toarray()
+        
+        # Combine all features
+        combined_features = np.hstack((
+            np.array(num_features), 
+            tfidf_features, 
+            xpath_features,
+            z1_features, z2_features, z3_features
+        ))
         
         # Scale
         scaled_features = self.scaler.fit_transform(combined_features)
@@ -183,13 +256,33 @@ class StructuralProcessor:
         
         num_features = []
         tag_sequences = []
+        xpath_sequences = []
+        z1_seqs, z2_seqs, z3_seqs = [], [], []
+        
         for u, h in zip(urls, htmls):
             domain = urlparse(u if u.startswith('http') else f"http://{u}").netloc
             num_features.append(self._extract_numerical_features(u, h, domain))
             tag_sequences.append(self._extract_tag_sequence(h))
+            xpath_sequences.append(self._extract_xpath_sequence(h))
+            
+            z1, z2, z3 = self._extract_spatial_zones(h)
+            z1_seqs.append(z1)
+            z2_seqs.append(z2)
+            z3_seqs.append(z3)
             
         tfidf_features = self.tfidf.transform(tag_sequences).toarray()
-        combined_features = np.hstack((np.array(num_features), tfidf_features))
+        xpath_features = self.xpath_tfidf.transform(xpath_sequences).toarray()
+        
+        z1_features = self.zone1_tfidf.transform(z1_seqs).toarray()
+        z2_features = self.zone2_tfidf.transform(z2_seqs).toarray()
+        z3_features = self.zone3_tfidf.transform(z3_seqs).toarray()
+        
+        combined_features = np.hstack((
+            np.array(num_features), 
+            tfidf_features, 
+            xpath_features,
+            z1_features, z2_features, z3_features
+        ))
         
         return self.scaler.transform(combined_features)
 
@@ -200,10 +293,15 @@ class StructuralProcessor:
             'html_length', 'html_num_tags', 'html_text_ratio', 'html_script_count',
             'html_external_link_ratio', 'html_password_input_count',
             'html_empty_link_ratio', 'html_input_to_p_ratio', 'css_hidden_count',
-            'html_title_length', 'brand_discrepancy', 'dom_depth', 'tag_diversity', 'external_resource_ratio', 'foreign_form_action'
+            'html_title_length', 'brand_discrepancy', 'dom_depth', 'tag_diversity', 'external_resource_ratio', 'foreign_form_action',
+            'html_js_ratio', 'body_tag_count', 'iframe_count'
         ]
         
-        if getattr(self, 'fitted', False) and hasattr(self.tfidf, 'get_feature_names_out'):
+        if getattr(self, 'fitted', False) and hasattr(self.tfidf, 'get_feature_names_out') and hasattr(self.xpath_tfidf, 'get_feature_names_out'):
             tfidf_features = [f"tag_tfidf_{feat}" for feat in self.tfidf.get_feature_names_out()]
-            return base_features + tfidf_features
-        return base_features + [f"tag_tfidf_{i}" for i in range(50)]
+            xpath_features = [f"xpath_tfidf_{feat}" for feat in self.xpath_tfidf.get_feature_names_out()]
+            z1_features = [f"z1_tfidf_{feat}" for feat in self.zone1_tfidf.get_feature_names_out()]
+            z2_features = [f"z2_tfidf_{feat}" for feat in self.zone2_tfidf.get_feature_names_out()]
+            z3_features = [f"z3_tfidf_{feat}" for feat in self.zone3_tfidf.get_feature_names_out()]
+            return base_features + tfidf_features + xpath_features + z1_features + z2_features + z3_features
+        return base_features + [f"tag_tfidf_{i}" for i in range(50)] + [f"xpath_tfidf_{i}" for i in range(25)] + [f"z1_tfidf_{i}" for i in range(20)] + [f"z2_tfidf_{i}" for i in range(20)] + [f"z3_tfidf_{i}" for i in range(20)]
