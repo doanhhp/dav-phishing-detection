@@ -14,12 +14,14 @@
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
+\graphicspath{{../../}}
+
 \begin{document}
 
 \title{Robust Phishing Detection via DOM Structural Geometry and Mid-Fusion XGBoost}
 
 \author{
-    \IEEEauthorblockN{Do Dai Doanh$^1$, Tran Trung Kien$^1$, Duong Van Kien$^1$, Thanh-Hai Tran$^1$} \\
+    \IEEEauthorblockN{Dai-Doanh Do$^1$, Trung-Kien Tran$^1$, Van-Kien Duong$^1$, Hanh-Trang Bui$^1$, Thanh-Hai Tran$^1$} \\
     \IEEEauthorblockA{$^1$School of Electrical and Electronic Engineering \\
     Hanoi University of Science and Technology, Hanoi, Vietnam \\
     Email: hai.tranthithanh1@hust.edu.vn}
@@ -160,7 +162,7 @@ To ensure algorithmic stability and neutralize adversarial evasion vectors (e.g.
 \textbf{2) Structured Data-Based Models:} We deployed standard Random Forest (RF) and XGBoost classifiers. Furthermore, we implemented our novel \textit{Mid-Fusion XGBoost} architecture (\texttt{mid\_fusion\_xgb.py}). This architecture extracts 10 numerical lexical metrics from the URL string alongside the 153-dimensional DOM structural matrix (18 geometric features and 135 TF-IDF structural sequence metrics, including XPath traces). Instead of standard early-fusion (concatenating raw data) or late-fusion (averaging probabilities), our architecture utilizes a Feature-Weighted Stacking approach that simulates mid-fusion. The Level-0 URL and HTML domain-expert models (tuned with \texttt{n\_estimators} = 200, \texttt{max\_depth} = 5, \texttt{learning\_rate} = 0.1) output intermediate probabilities. These expert probabilities are then passed alongside the original raw feature space (using a passthrough mechanism) into a Level-1 joint meta-learner (tuned with \texttt{n\_estimators} = 300, \texttt{max\_depth} = 6). This allows the meta-learner to capture deep synergistic correlations between raw structural variables and high-level expert predictions.
 
 \begin{figure}[t]
-\centerline{\includegraphics[width=0.45\textwidth]{assets/domain_shift/domain_shift_t-sne.png}}
+\centerline{\includegraphics[width=0.45\textwidth]{assets/domain_shift/tsne_full_domain_overlap.png}}
 \caption{t-SNE visualization mapping the Domain Shift problem between Dataset-2021 and Dataset-2026.}
 \label{fig:tsne}
 \end{figure}
@@ -250,17 +252,17 @@ As visually predicted by our t-SNE analysis, Deep Learning models trained on tex
 \label{tab:results_2024}
 \begin{center}
 \resizebox{\columnwidth}{!}{
-\begin{tabular}{lcccc}
+\begin{tabular}{llcccc}
 \toprule
-\textbf{Model Architecture} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\textbf{Model Architecture} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
-WebPhish CNN & 55.57\% & 63.46\% & 26.25\% & 37.13\% \\
-LSTM (URL Only) & 61.55\% & 56.55\% & 99.72\% & 72.17\% \\
-Random Forest (URL Only) & 73.93\% & 69.45\% & 85.46\% & 76.63\% \\
-Structural XGBoost & 75.30\% & 73.52\% & 79.09\% & 76.20\% \\
-Structural Stacking Ensemble & 75.09\% & 71.45\% & 83.57\% & 77.04\% \\
+WebPhish CNN & URL + HTML & 55.57\% & 63.46\% & 26.25\% & 37.13\% \\
+LSTM (URL Only) & URL Only & 61.55\% & 56.55\% & 99.72\% & 72.17\% \\
+Random Forest (URL Only) & URL Only & 73.93\% & 69.45\% & 85.46\% & 76.63\% \\
+Structural XGBoost & URL + HTML & 75.30\% & 73.52\% & 79.09\% & 76.20\% \\
+Structural Stacking Ensemble & URL + HTML & 75.09\% & 71.45\% & 83.57\% & 77.04\% \\
 \midrule
-\textbf{Mid-Fusion XGBoost (Default $p=0.5$)} & \textbf{79.32\%} & \textbf{82.70\%} & \textbf{74.16\%} & \textbf{78.20\%} \\
+\textbf{Mid-Fusion XGBoost (Default $p=0.5$)} & \textbf{URL + HTML} & \textbf{79.32\%} & \textbf{82.70\%} & \textbf{74.16\%} & \textbf{78.20\%} \\
 \bottomrule
 \end{tabular}
 }
@@ -272,22 +274,22 @@ Structural Stacking Ensemble & 75.09\% & 71.45\% & 83.57\% & 77.04\% \\
 \label{tab:results_2021}
 \begin{center}
 \resizebox{\columnwidth}{!}{
-\begin{tabular}{lcccc}
+\begin{tabular}{llcccc}
 \toprule
-\textbf{Model Architecture} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\textbf{Model Architecture} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
-WebPhish CNN & 98.94\% & 98.94\% & 98.94\% & 98.94\% \\
-EGSO CNN & 96.83\% & 96.83\% & 96.83\% & 96.83\% \\
-LSTM (URL Only) & 96.21\% & 96.22\% & 96.21\% & 96.21\% \\
-RNN-GRU & 94.91\% & 94.97\% & 94.91\% & 94.91\% \\
-Hybrid SVM-KNN & 82.67\% & 83.31\% & 82.67\% & 82.53\% \\
-Random Forest (URL Only) & 91.30\% & 91.36\% & 91.30\% & 91.29\% \\
-Structural Random Forest & 96.52\% & 96.52\% & 96.52\% & 96.52\% \\
-Structural XGBoost & 97.05\% & 97.05\% & 97.05\% & 97.05\% \\
-Structural Stacking Ensemble & 97.93\% & 97.93\% & 97.93\% & 97.93\% \\
+WebPhish CNN & URL + HTML & 98.94\% & 98.94\% & 98.94\% & 98.94\% \\
+EGSO CNN & URL + HTML & 96.83\% & 96.83\% & 96.83\% & 96.83\% \\
+LSTM (URL Only) & URL Only & 96.21\% & 96.22\% & 96.21\% & 96.21\% \\
+RNN-GRU & URL + HTML & 94.91\% & 94.97\% & 94.91\% & 94.91\% \\
+Hybrid SVM-KNN & URL + HTML & 82.67\% & 83.31\% & 82.67\% & 82.53\% \\
+Random Forest (URL Only) & URL Only & 91.30\% & 91.36\% & 91.30\% & 91.29\% \\
+Structural Random Forest & URL + HTML & 96.52\% & 96.52\% & 96.52\% & 96.52\% \\
+Structural XGBoost & URL + HTML & 97.05\% & 97.05\% & 97.05\% & 97.05\% \\
+Structural Stacking Ensemble & URL + HTML & 97.93\% & 97.93\% & 97.93\% & 97.93\% \\
 \midrule
-\textbf{Mid-Fusion XGBoost (Default $p=0.5$)} & \textbf{98.28\%} & \textbf{98.28\%} & \textbf{98.28\%} & \textbf{98.28\%} \\
-\textbf{Mid-Fusion XGBoost (Optimal $p=0.42$)} & \textbf{99.80\%} & \textbf{99.81\%} & \textbf{99.80\%} & \textbf{99.80\%} \\
+\textbf{Mid-Fusion XGBoost (Default $p=0.5$)} & \textbf{URL + HTML} & \textbf{98.28\%} & \textbf{98.28\%} & \textbf{98.28\%} & \textbf{98.28\%} \\
+\textbf{Mid-Fusion XGBoost (Optimal $p=0.42$)} & \textbf{URL + HTML} & \textbf{99.80\%} & \textbf{99.81\%} & \textbf{99.80\%} & \textbf{99.80\%} \\
 \bottomrule
 \end{tabular}
 }
@@ -299,17 +301,17 @@ Structural Stacking Ensemble & 97.93\% & 97.93\% & 97.93\% & 97.93\% \\
 \label{tab:results_2026}
 \begin{center}
 \resizebox{\columnwidth}{!}{
-\begin{tabular}{lcccc}
+\begin{tabular}{llcccc}
 \toprule
-\textbf{Model Architecture} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\textbf{Model Architecture} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
-WebPhish CNN (Unblinded Baseline) & 65.91\% & 24.49\% & 76.43\% & 37.09\% \\
-WebPhish CNN (100\% URL Blinded) & 82.97\% & 39.12\% & 53.12\% & 45.06\% \\
-Structural Random Forest & 79.97\% & 37.13\% & 75.52\% & 49.79\% \\
-Structural XGBoost & 75.36\% & 32.44\% & 80.73\% & 46.29\% \\
-Structural Stacking Ensemble & 78.03\% & 35.33\% & 80.73\% & 49.15\% \\
+WebPhish CNN (Unblinded Baseline) & URL + HTML & 65.91\% & 24.49\% & 76.43\% & 37.09\% \\
+WebPhish CNN (100\% URL Blinded) & HTML Only & 82.97\% & 39.12\% & 53.12\% & 45.06\% \\
+Structural Random Forest & HTML Only & 79.97\% & 37.13\% & 75.52\% & 49.79\% \\
+Structural XGBoost & HTML Only & 75.36\% & 32.44\% & 80.73\% & 46.29\% \\
+Structural Stacking Ensemble & HTML Only & 78.03\% & 35.33\% & 80.73\% & 49.15\% \\
 \midrule
-\textbf{Mid-Fusion XGBoost (Default $p=0.5$)} & \textbf{79.83\%} & \textbf{37.45\%} & \textbf{79.69\%} & \textbf{50.96\%} \\
+\textbf{Mid-Fusion XGBoost (Default $p=0.5$)} & \textbf{HTML Only} & \textbf{79.83\%} & \textbf{37.45\%} & \textbf{79.69\%} & \textbf{50.96\%} \\
 \bottomrule
 \end{tabular}
 }
@@ -329,8 +331,8 @@ Structural Stacking Ensemble & 78.03\% & 35.33\% & 80.73\% & 49.15\% \\
 WebPhish CNN & $\sim$30 minutes & 0.190 ms \\
 EGSO CNN & $\sim$50 minutes & 0.220 ms \\
 LSTM (URL Only) & $\sim$30 minutes & 1.28 ms \\
-Structural XGBoost & $\sim$10 seconds & 0.001 ms \\
-Structural Stacking Ensemble & $\sim$25 seconds & 0.004 ms \\
+Structural XGBoost & $\sim$3 minutes & 0.001 ms \\
+Structural Stacking Ensemble & $\sim$3 minutes & 0.004 ms \\
 \midrule
 \textbf{Mid-Fusion XGBoost} & \textbf{$\sim$5 minutes} & \textbf{0.005 ms} \\
 \bottomrule
