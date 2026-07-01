@@ -297,6 +297,25 @@ Structural Stacking Ensemble & URL + HTML & 97.93\% & 97.93\% & 97.93\% & 97.93\
 \end{table}
 
 \begin{table}[htbp]
+\caption{Mid-Fusion XGBoost Component Analysis (Trained and Tested on Dataset-2021)}
+\label{tab:midfusion_ablation}
+\begin{center}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Model Component} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\midrule
+Level-0 URL Expert & URL Only & 89.37\% & 90.02\% & 88.57\% & 89.29\% \\
+Level-0 HTML Expert & HTML Only & 96.62\% & 97.42\% & 95.77\% & 96.59\% \\
+\midrule
+\textbf{Level-1 Mid-Fusion} & \textbf{URL + HTML} & \textbf{98.45\%} & \textbf{98.72\%} & \textbf{98.18\%} & \textbf{98.45\%} \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
 \caption{Zero-Day Transferability under 100\% Lexical Blinding for ML Models (Trained on Dataset-2021, Tested on Dataset-2026)}
 \label{tab:results_2026}
 \begin{center}
