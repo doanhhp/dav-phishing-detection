@@ -396,12 +396,12 @@ Structural Stacking Ensemble & $\sim$3 minutes & 0.004 ms \\
 \begin{figure*}[htbp]
 \begin{minipage}[t]{0.48\textwidth}
 \centerline{\includegraphics[width=\textwidth]{assets/dom_structure_analysis/Main/probabilistic_dom_benign_depth5.png}}
-\caption{Probabilistic DOM Tree Structure for Benign Domains (Depth 5). Note the dense text and container hierarchy.}
+\caption{Probabilistic DOM Tree Structure for Benign Domains (Depth 5). Note the dense hierarchy featuring a rich variety of HTML5 semantic tags.}
 \label{fig:dom_benign_depth5}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.48\textwidth}
 \centerline{\includegraphics[width=\textwidth]{assets/dom_structure_analysis/Main/probabilistic_dom_phishing_depth5.png}}
-\caption{Probabilistic DOM Tree Structure for Phishing Domains (Depth 5). Note the sparse, form-heavy structure.}
+\caption{Probabilistic DOM Tree Structure for Phishing Domains (Depth 5). Note the lack of semantic tags, relying on sparse \texttt{div} chains and basic form elements.}
 \label{fig:dom_phish_depth5}
 \end{minipage}
 \end{figure*}
@@ -415,7 +415,7 @@ Furthermore, as evidenced by our Component Analysis (Table \ref{tab:midfusion_ab
 
 \textbf{Dataset-2024:} The primary vulnerability of Deep Learning NLP models is exposed in Dataset-2024 (Table \ref{tab:results_2024}). The WebPhish CNN suffered a massive collapse in \textbf{Recall} (down to 26.25\%). Because text-based models overfit to historic semantic keywords, attackers successfully evaded detection simply by adopting novel text, leading to an extreme surge in False Negatives (missing live attacks). 
 
-By contrast, our Mid-Fusion XGBoost model maintained a highly robust Accuracy of 79.32\% and a Recall of 74.16\% (retaining an $\sim$80\% performance baseline), proving that structural DOM invariants successfully identify novel threats that textual models miss entirely. As visualized in the depth-5 probabilistic DOM trees (Fig. \ref{fig:dom_benign_depth5} and Fig. \ref{fig:dom_phish_depth5}), benign domains exhibit deeply nested, semantically rich containers, while phishing domains rely on extremely shallow, form-heavy skeletons to rapidly harvest credentials. By anchoring on these inherent structural geometries—which attackers cannot easily modify without breaking browser rendering—our model effectively neutralizes semantic evasion tactics.
+By contrast, our Mid-Fusion XGBoost model maintained a highly robust Accuracy of 79.32\% and a Recall of 74.16\% (retaining an $\sim$80\% performance baseline), proving that structural DOM invariants successfully identify novel threats that textual models miss entirely. As visualized in the depth-5 probabilistic DOM trees (Fig. \ref{fig:dom_benign_depth5} and Fig. \ref{fig:dom_phish_depth5}), benign domains exhibit a dense hierarchy featuring a rich variety of HTML5 semantic tags (e.g., \texttt{nav}, \texttt{header}, \texttt{footer}, \texttt{section}), while phishing domains rely on sparse, simplistic skeletons comprising generic \texttt{div} chains and basic data-entry elements (\texttt{form}, \texttt{input}) to rapidly harvest credentials. By anchoring on these inherent structural geometries—which attackers cannot easily modify without breaking browser rendering—our model effectively neutralizes semantic evasion tactics.
 
 \textbf{Dataset-2026:} The heavily shifted Dataset-2026 (Table \ref{tab:results_2026}) introduced a different challenge: a significant degradation in \textbf{Precision} for historic NLP baselines (e.g., the unblinded WebPhish CNN dropping to 24.49\%). This low Precision highlights a massive surge in False Positives. Due to sampling the Dataset-2026 legitimate websites from the Tranco top domains list \cite{tranco}, the dataset was heavily biased toward simple, root-level enterprise homepages, resulting in artificially short URLs and unfamiliar semantic content compared to the deep paths found in the Dataset-2021 baseline. Consequently, historic text-based models incorrectly flagged these unfamiliar benign sites as anomalous.
 
