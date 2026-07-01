@@ -22,7 +22,7 @@ A comparative evaluation of eleven phishing detection methods, culminating in ro
 
 ## How it Works
 1. **Live Data Collection**: We fetch real-time URLs from OpenPhish, PhishTank, and Tranco to build Out-of-Distribution (OOD) test sets.
-2. **Structural Feature Engineering**: Through iterative pruning, we distilled HTML and URL properties down to **21 invariant structural features** (e.g. Empty links ratio, HTML length, Password Inputs). This prevents the "Domain Shift" decay that destroys deep learning models on live data.
+2. **Structural Feature Engineering**: Through iterative tuning, we engineered **163 structural DOM invariants** (28 geometric properties and 135 XPath TF-IDF sequential metrics). This purely structural approach completely prevents the "Domain Shift" decay that destroys deep learning models on live data.
 3. **Modeling**: We apply Random Forest (`structural_rf`) and XGBoost (`structural_xgb`) classifiers against these features to achieve superior generalization.
 4. **Visual Analytics**: Advanced DOM tree probabilistic mapping using left-to-right hierarchy layout and ultra-deep (20 depth) topological analysis.
 
@@ -92,7 +92,11 @@ PhishingDetection/
 │   └── reports/                 # Advanced adaptation logs, LaTeX papers
 ├── experiments/                 # Saved model weights (.pkl, .h5, .pt) and results
 ├── scripts/
-│   └── experiments/             # Heavy scripts for incremental learning, visualization, retrainings
+│   ├── train/                   # Scripts for training models
+│   ├── evaluate/                # Scripts for cross-dataset evaluation and zero-day testing
+│   ├── utils/                   # Scratch scripts and data conversion utilities
+│   ├── visualizations/          # Scripts for generating XAI graphs and feature plots
+│   └── experiments/             # Heavy scripts for incremental learning and DOM vis
 ├── src/                         # Core source code package
 │   ├── evaluation/              # Metrics and visualization generators
 │   ├── features/                # Feature processors (TF-IDF, Structural, Sequential)
