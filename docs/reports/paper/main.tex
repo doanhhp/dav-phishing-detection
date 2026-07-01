@@ -373,6 +373,19 @@ Structural Stacking Ensemble & $\sim$3 minutes & 0.004 ms \\
 \end{minipage}
 \end{figure*}
 
+\begin{figure*}[htbp]
+\begin{minipage}[t]{0.48\textwidth}
+\centerline{\includegraphics[width=\textwidth]{assets/dom_structure_analysis/Main/probabilistic_dom_benign_depth5.png}}
+\caption{Probabilistic DOM Tree Structure for Benign Domains (Depth 5). Note the dense text and container hierarchy.}
+\label{fig:dom_benign_depth5}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centerline{\includegraphics[width=\textwidth]{assets/dom_structure_analysis/Main/probabilistic_dom_phishing_depth5.png}}
+\caption{Probabilistic DOM Tree Structure for Phishing Domains (Depth 5). Note the sparse, form-heavy structure.}
+\label{fig:dom_phish_depth5}
+\end{minipage}
+\end{figure*}
+
 \subsection{Detailed Analysis of Performance Metrics}
 To fully contextualize the performance degradation across domains, it is critical to analyze the Precision, Recall, and F1-Score independently from raw Accuracy.
 
@@ -380,7 +393,9 @@ To fully contextualize the performance degradation across domains, it is critica
 
 Furthermore, as evidenced by our Component Analysis (Table \ref{tab:midfusion_ablation}), the Mid-Fusion meta-learner successfully extracts synergistic information across modalities. While the Level-0 URL Expert (89.37\% accuracy) and Level-0 HTML Expert (96.62\% accuracy) are strong independent classifiers, fusing their intermediate probabilities with the raw structural feature space allows the Level-1 joint meta-learner to push the boundary to an exceptional 98.28\% accuracy, validating the efficacy of our proposed Mid-Fusion architecture.
 
-\textbf{Dataset-2024:} The primary vulnerability of Deep Learning NLP models is exposed in Dataset-2024 (Table \ref{tab:results_2024}). The WebPhish CNN suffered a massive collapse in \textbf{Recall} (down to 26.25\%). Because text-based models overfit to historic semantic keywords, attackers successfully evaded detection simply by adopting novel text, leading to an extreme surge in False Negatives (missing live attacks). By contrast, our structural XGBoost model maintained a robust Recall of 74.16\% and a Precision of 82.70\% (F1-Score 78.20\%), proving that structural DOM invariants successfully identify novel threats that textual models miss entirely.
+\textbf{Dataset-2024:} The primary vulnerability of Deep Learning NLP models is exposed in Dataset-2024 (Table \ref{tab:results_2024}). The WebPhish CNN suffered a massive collapse in \textbf{Recall} (down to 26.25\%). Because text-based models overfit to historic semantic keywords, attackers successfully evaded detection simply by adopting novel text, leading to an extreme surge in False Negatives (missing live attacks). 
+
+By contrast, our Mid-Fusion XGBoost model maintained a highly robust Accuracy of 79.32\% and a Recall of 74.16\% (retaining an $\sim$80\% performance baseline), proving that structural DOM invariants successfully identify novel threats that textual models miss entirely. As visualized in the depth-5 probabilistic DOM trees (Fig. \ref{fig:dom_benign_depth5} and Fig. \ref{fig:dom_phish_depth5}), benign domains exhibit deeply nested, semantically rich containers, while phishing domains rely on extremely shallow, form-heavy skeletons to rapidly harvest credentials. By anchoring on these inherent structural geometries—which attackers cannot easily modify without breaking browser rendering—our model effectively neutralizes semantic evasion tactics.
 
 \textbf{Dataset-2026:} The heavily shifted Dataset-2026 (Table \ref{tab:results_2026}) introduced a different challenge: a significant degradation in \textbf{Precision} for historic NLP baselines (e.g., the unblinded WebPhish CNN dropping to 24.49\%). This low Precision highlights a massive surge in False Positives. Due to sampling the Dataset-2026 legitimate websites from the Tranco top domains list \cite{tranco}, the dataset was heavily biased toward simple, root-level enterprise homepages, resulting in artificially short URLs and unfamiliar semantic content compared to the deep paths found in the Dataset-2021 baseline. Consequently, historic text-based models incorrectly flagged these unfamiliar benign sites as anomalous.
 
