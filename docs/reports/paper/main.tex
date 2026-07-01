@@ -173,7 +173,25 @@ To ensure algorithmic stability and neutralize adversarial evasion vectors (e.g.
 All experiments were conducted utilizing Python 3.10, Scikit-Learn, XGBoost, and TensorFlow on a local environment equipped with standard machine learning hardware to simulate realistic deployment conditions. We utilized a rigorous 5-fold Stratified Cross-Validation strategy during the initial training phase on Dataset-2021 to prevent class imbalance from skewing the model weights. Performance was evaluated using Accuracy, Precision, Recall, and F1-Score. Given the asymmetric cost of False Negatives (missing a phishing attack) versus False Positives in cybersecurity, the F1-Score was prioritized for threshold tuning. The ultimate test of the models involved evaluating them against the completely unseen Dataset-2024 and Dataset-2026 without any retraining.
 
 \subsection{Dataset Descriptive Statistics}
-To better understand the structural and lexical characteristics of the domains under evaluation, Table \ref{tab:url_stats} and Table \ref{tab:dom_stats} present the descriptive statistics for selected URL and HTML DOM features extracted from Dataset-2021. Visual representations of these structural discrepancies can be observed in Figure \ref{fig:url_dist} and Figure \ref{fig:dom_dist}. Phishing pages systematically demonstrate distinct structural distributions compared to benign domains.
+Table \ref{tab:dataset_distribution} outlines the total sample size and class distributions across our three experimental datasets. The core Dataset-2021 and shifted Dataset-2026 are perfectly balanced, whereas the zero-day Dataset-2024 reflects an organic real-world class imbalance.
+
+\begin{table}[htbp]
+\caption{Dataset Samples and Class Distributions}
+\label{tab:dataset_distribution}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & \textbf{Total Samples} & \textbf{Benign (0)} & \textbf{Phishing (1)} \\
+\midrule
+Dataset-2021 (Historic) & 45,373 & 22,687 (50.0\%) & 22,686 (50.0\%) \\
+Dataset-2024 (Zero-Day) & 5,841 & 5,073 (86.9\%) & 768 (13.1\%) \\
+Dataset-2026 (Zero-Day Shifted) & 40,000 & 20,000 (50.0\%) & 20,000 (50.0\%) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+Furthermore, to better understand the structural and lexical characteristics of the domains under evaluation, Table \ref{tab:url_stats} and Table \ref{tab:dom_stats} present the descriptive statistics for selected URL and HTML DOM features extracted from Dataset-2021. Visual representations of these structural discrepancies can be observed in Figure \ref{fig:url_dist} and Figure \ref{fig:dom_dist}. Phishing pages systematically demonstrate distinct structural distributions compared to benign domains.
 
 \begin{table*}[t]
 \caption{Summary Statistics for Selected URL Features (Dataset-2021)}
