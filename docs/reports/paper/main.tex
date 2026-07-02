@@ -268,13 +268,13 @@ Figure \ref{fig:tsne} utilizes t-Distributed Stochastic Neighbor Embedding (t-SN
 As visually predicted by our t-SNE analysis, Deep Learning models trained on textual data experienced significant degradation when exposed to the PhreshPhish dataset. As detailed in Table \ref{tab:results_2024} and the Confusion Matrices (Fig. \ref{fig:confusion}), the WebPhish CNN suffered from a substantial increase in False Negatives. Attackers successfully bypassed the lexical parameters, causing the local accuracy of 98.94\% to decline to 55.57\%. This lexical drift is visually evident when comparing the term frequencies of the datasets (see Figure \ref{fig:wordcloud_old} and Figure \ref{fig:wordcloud_new}). 
 
 \begin{table}[htbp]
-\caption{\textcolor{blue}{Zero-Day Transferability (Trained on Dataset-2021, Tested on Dataset-2024)}}
+\caption{Zero-Day Transferability (Trained on Dataset-2021, Tested on Dataset-2024)}
 \label{tab:results_2024}
 \begin{center}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{llcccc}
 \toprule
-\textbf{Model Architecture} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\textbf{Model Architecture} & \textcolor{blue}{\textbf{Input}} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
 WebPhish CNN & URL + HTML & 55.57\% & 63.46\% & 26.25\% & 37.13\% \\
 LSTM (URL Only) & URL Only & 61.55\% & 56.55\% & 99.72\% & 72.17\% \\
@@ -290,13 +290,13 @@ Structural Stacking Ensemble & URL + HTML & 75.09\% & 71.45\% & 83.57\% & 77.04\
 \end{table}
 
 \begin{table}[htbp]
-\caption{\textcolor{blue}{Baseline Performance (Trained and Tested on Dataset-2021)}}
+\caption{Baseline Performance (Trained and Tested on Dataset-2021)}
 \label{tab:results_2021}
 \begin{center}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{llcccc}
 \toprule
-\textbf{Model Architecture} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\textbf{Model Architecture} & \textcolor{blue}{\textbf{Input}} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
 WebPhish CNN & URL + HTML & 98.94\% & 98.94\% & 98.94\% & 98.94\% \\
 EGSO CNN & URL + HTML & 96.83\% & 96.83\% & 96.83\% & 96.83\% \\
@@ -336,13 +336,13 @@ Level-0 HTML Expert & HTML Only & 96.62\% & 97.42\% & 95.77\% & 96.59\% \\
 \end{table}
 
 \begin{table}[htbp]
-\caption{\textcolor{blue}{Zero-Day Transferability under 100\% Lexical Blinding for ML Models (Trained on Dataset-2021, Tested on Dataset-2026)}}
+\caption{Zero-Day Transferability under 100\% Lexical Blinding for ML Models (Trained on Dataset-2021, Tested on Dataset-2026)}
 \label{tab:results_2026}
 \begin{center}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{llcccc}
 \toprule
-\textbf{Model Architecture} & \textbf{Input} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\textbf{Model Architecture} & \textcolor{blue}{\textbf{Input}} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
 \midrule
 WebPhish CNN (Unblinded Baseline) & URL + HTML & 65.91\% & 24.49\% & 76.43\% & 37.09\% \\
 WebPhish CNN (100\% URL Blinded) & HTML Only & 82.97\% & 39.12\% & 53.12\% & 45.06\% \\
@@ -411,7 +411,7 @@ To fully contextualize the performance degradation across domains, it is critica
 
 \textbf{Dataset-2021:} On the local historic dataset (Table \ref{tab:results_2021}), both the WebPhish CNN and the Mid-Fusion XGBoost model demonstrated perfectly balanced Precision and Recall ($\sim$98-99\%). This balance indicates that when the training and testing sets share the same temporal distribution, models can effortlessly identify legitimate domains and phishing payloads without generating False Positives or False Negatives.
 
-Furthermore, as evidenced by our Component Analysis (Table \ref{tab:midfusion_ablation}), the Mid-Fusion meta-learner successfully extracts synergistic information across modalities. While the Level-0 URL Expert (89.37\% accuracy) and Level-0 HTML Expert (96.62\% accuracy) are strong independent classifiers, fusing their intermediate probabilities with the raw structural feature space allows the Level-1 joint meta-learner to push the boundary to an exceptional 98.28\% accuracy, validating the efficacy of our proposed Mid-Fusion architecture.
+\textcolor{blue}{Furthermore, as evidenced by our Component Analysis (Table \ref{tab:midfusion_ablation}), the Mid-Fusion meta-learner successfully extracts synergistic information across modalities. While the Level-0 URL Expert (89.37\% accuracy) and Level-0 HTML Expert (96.62\% accuracy) are strong independent classifiers, fusing their intermediate probabilities with the raw structural feature space allows the Level-1 joint meta-learner to push the boundary to an exceptional 98.28\% accuracy, validating the efficacy of our proposed Mid-Fusion architecture.}
 
 \textbf{Dataset-2024:} The primary vulnerability of Deep Learning NLP models is exposed in Dataset-2024 (Table \ref{tab:results_2024}). The WebPhish CNN suffered a massive collapse in \textbf{Recall} (down to 26.25\%). Because text-based models overfit to historic semantic keywords, attackers successfully evaded detection simply by adopting novel text, leading to an extreme surge in False Negatives (missing live attacks). 
 
