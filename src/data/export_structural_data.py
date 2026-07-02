@@ -6,7 +6,6 @@ import logging
 from tqdm import tqdm
 import sys
 
-# Add src to path so we can import modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.features.structural import StructuralProcessor

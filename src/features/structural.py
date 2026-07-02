@@ -41,7 +41,7 @@ class StructuralProcessor:
         url_lower = url.lower()
         parsed = urlparse(url if url.startswith('http') else f"http://{url}")
         
-        # --- URL Features (Lexical) ---
+        # URL Features
         features.append(len(url))                                       # url_length
         features.append(parsed.netloc.count('.'))                       # url_num_dots
         features.append(1 if parsed.scheme == 'https' else 0)           # is_https
@@ -53,9 +53,8 @@ class StructuralProcessor:
         features.append(1 if 'login' in url_lower else 0)               # url_has_login
         features.append(1 if '-' in parsed.netloc else 0)               # url_hyphen_domain
         
-        # --- Brand Mimicry removed per user request ---
         
-        # --- HTML Features ---
+        # HTML Features
         features.append(len(html))
         
         tags = re.findall(r'<[^>]+>', html)
@@ -107,7 +106,7 @@ class StructuralProcessor:
             brand_discrepancy = 1.0 - similarity
         features.append(brand_discrepancy)
         
-        # --- Advanced EDA & Positional Features ---
+        # Positional Features
         try:
             import lxml.html
             tree = lxml.html.fromstring(html)
@@ -148,7 +147,7 @@ class StructuralProcessor:
                         break
             features.append(foreign_form)
             
-            # --- Cloaking / Evasion Features ---
+            # Cloaking / Evasion Features 
             scripts = [t for t in all_tags_list if isinstance(t.tag, str) and t.tag == 'script']
             js_len = sum(len(t.text_content()) for t in scripts if t.text_content())
             features.append(js_len / max(1, len(html))) # html_js_ratio

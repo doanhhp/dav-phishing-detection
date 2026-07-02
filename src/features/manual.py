@@ -79,7 +79,6 @@ class ManualFeatureProcessor:
 
     def fit_transform(self, X, y=None):
         """Fit and transform features."""
-        # For manual features, fit doesn't do much unless we normalize
         self.fitted = True
         return self.transform(X)
 
